@@ -36,6 +36,7 @@ normative:
   RFC5321:
   RFC5322:
   RFC5436:
+  RFC6008:
   RFC6068:
   RFC6376:
   RFC8259:
@@ -55,6 +56,7 @@ informative:
   RFC9116:
   RFC9421:
   I-D.ietf-dkim-dkim2-spec:
+  I-D.ietf-emailcore-rfc5322bis:
   I-D.mozleywilliams-dnsop-dnsaid:
   I-D.nemethi-dawn-aid:
   I-D.ietf-webbotauth-httpsig-protocol:
@@ -211,7 +213,9 @@ Aligned DKIM Pass:
   same Organizational Domain). A receiver MAY rely on an Authentication-Results
   field {{RFC8601}} added by a Mailbox Provider it trusts, instead of
   validating the signature itself, when it reads the message through that
-  provider.
+  provider; where this document also requires the signature to cover a
+  field, the receiver uses the "header.b" property {{RFC6008}} to identify
+  the signature and reads its "h=" tag.
 
 The ABNF in this document uses the notation of {{RFC5234}}.
 
@@ -248,8 +252,10 @@ Failing that, the only evidence is the reply itself: an Agent-Reroute field
 in a reply that has an Aligned DKIM Pass for the address's domain and covers
 the field ({{reroute}}). Such a reply shows that the Mailbox Provider
 accepted it from an account permitted to send as that address; it says
-nothing about who operates the account. Agent Platforms SHOULD present these
-cases to the Principal accordingly.
+nothing about who operates the account. It is also only available where the
+Mailbox Provider's signature covers the Agent-Reroute field, which today is
+uncommon (see {{reroute}}). Agent Platforms SHOULD present these cases to
+the Principal accordingly.
 
 The destination's domain does not matter; its verifiability does. An Agent
 Contact Point is commonly operated by a service provider on a different
@@ -283,8 +289,9 @@ agent_contacts:
     restrictions as in "human_contacts";
   - "protocol" (OPTIONAL): how the contact point is used. This document
     defines "email", "voice", "a2a" (an A2A Agent Card {{A2A}}) and "mcp"
-    (a Model Context Protocol endpoint {{MCP}}); clients MUST ignore entries
-    whose protocol they do not recognize;
+    (a Model Context Protocol endpoint {{MCP}}); a client that does not
+    recognize a protocol value treats the entry as having none, and still
+    uses its "uri" if it supports that URI scheme;
   - "for" (OPTIONAL): an array of URIs from "human_contacts" that this Agent
     Contact Point serves. If absent, it serves all of them.
 
@@ -318,17 +325,18 @@ location website.
 ## Comparing Contact Points
 
 To decide whether an address appears in a policy, a client compares
-"mailto:" URIs by their addr-spec, with the domain compared
-case-insensitively and the local part compared exactly, and applies no
-provider-specific equivalences; and compares "tel:" URIs as specified in
-{{RFC3966}}, Section 4, after converting the address in hand to a global
-number. "https:" URIs are compared as specified in {{RFC9110}}, Section
+"mailto:" URIs by their addr-spec after percent-decoding ({{RFC6068}}), with
+the domain compared case-insensitively and the local part compared exactly,
+and applies no provider-specific equivalences. It compares "tel:" URIs as
+specified in {{RFC3966}}, Section 4, after converting the number in hand to
+a global number using the country of the page or listing where it was
+found; a number whose country is unknown matches nothing. "https:" URIs are compared as specified in {{RFC9110}}, Section
 4.2.3.
 
 ## Choosing an Agent Contact Point
 
 To find the Agent Contact Point corresponding to a Human Contact Point, an
-Agent considers the entries of "agent_contacts" that serve that Human Contact
+Agent Platform considers the entries of "agent_contacts" that serve that Human Contact
 Point, preferring entries whose "for" names it over entries without "for".
 Among those, it prefers in order: an entry of the same kind as the Human
 Contact Point ("mailto:" for "mailto:", "tel:" for "tel:"); an entry whose
@@ -418,7 +426,11 @@ Auto-Submitted: agent-submitted; agent=agents.example.net
 The "agent-submitted" keyword means that the message was composed by an
 Agent acting for a person, and that it is a request that expects an answer.
 It describes composition, not submission: it applies whether the Agent sends
-the message itself or the Principal approves a draft before it is sent.
+the message itself or the Principal approves a draft before it is sent. This
+departs from {{RFC3834}}, Section 5.2, under which Auto-Submitted "SHOULD NOT
+be supplied for messages that were manually submitted by a human"; a
+Principal's approval of an Agent's draft is treated here as the Agent's
+submission, because the Organization needs to know who composed it.
 
 The "agent" parameter is REQUIRED with this keyword; its value is a domain
 name identifying the Agent Platform. A second parameter, "by", is described
@@ -464,12 +476,13 @@ carries exactly one Auto-Submitted field and one of the following holds:
    intermediaries' assertions to believe.
 
 Signers SHOULD list Auto-Submitted in "h=" one more time than it appears in
-the message, as described in {{RFC6376}}, Section 5.4.2, so that a second
+the message ("oversigning"), as described in {{RFC6376}}, Section 5.4.2, so that a second
 instance added later invalidates the signature.
 
 A verified label means that the signing domain asserts that the message was
 composed by the named Agent Platform; it is not proof beyond that domain's
-assertion. An unverified label is a claim, not an identification. A receiver
+assertion, and a platform-signed label is only as good as the signer's
+refusal to sign such fields supplied by its users ({{by-provider}}). An unverified label is a claim, not an identification. A receiver
 MAY still use it to choose how to reply (for example, by stating the Agent
 Contact Point in the reply) but MUST NOT use it to withhold the message from
 staff.
@@ -496,10 +509,16 @@ A Mailbox Provider that asserts labels:
   "agent-submitted" with an "agent" parameter naming the application's
   registered domain and a "by" parameter naming a domain it signs for, and
   sign the field;
-- MUST remove, from every message it signs, any Auto-Submitted field whose
-  "by" parameter is in relaxed alignment with any domain it signs for,
-  unless it set that field itself, so that neither a user nor an application
-  can forge its assertion.
+- MUST remove, from every message it signs, any agent-submitted field whose
+  "agent" or "by" parameter is in relaxed alignment with any domain it signs
+  for, unless it set that field itself, so that neither a user nor an
+  application can forge its assertion.
+
+This applies to any operator that signs mail on behalf of users, whether or
+not it asserts labels. A provider that signs mail for customers' own domains
+(for example, a hosted mail service) can assert labels only with "by" set to
+the customer's domain, so a receiver cannot tell its assertion from the
+customer's; this document gives such providers no stronger mechanism.
 
 The Agent Platform SHOULD also add a Sender field {{RFC5322}} naming a
 mailbox it controls, preserving the Principal in From. Mail signed by
@@ -513,20 +532,29 @@ Agent Contact Policy and Agent-Reroute instead.
 
 ## Receiver Handling {#receiver-handling}
 
-A message with a verified agent-submitted label is a request that expects an
-answer. A receiver MAY route it to an Agent Contact Point and answer it
-there, notwithstanding the general guidance in {{RFC3834}}, Section 2, that
-automatic responses should not be sent to messages with an Auto-Submitted
-value other than "no". A receiver MUST NOT answer automatically a message
-labelled "auto-generated" or "auto-replied".
+An Agent Contact Point is a Service Responder in the sense of {{RFC3834}},
+Section 1.1: a sender writing to it expects an automatic response. It MAY
+answer any Request, whatever its Auto-Submitted value, except one labelled
+"auto-replied".
 
-Such answers are the responses of a service responder in the sense of
-{{RFC3834}}, Section 4, and this document defines their destination: the
-single address in the From field of the message being answered. They MUST
-NOT be sent to the Reply-To address. They:
+On a Human Contact Point, a message with a verified agent-submitted label is
+a request that expects an answer. The receiver MAY route it to its Agent
+Contact Point and answer it from there, notwithstanding the general guidance
+in {{RFC3834}}, Section 2, that automatic responses should not be sent to
+messages with an Auto-Submitted value other than "no". A Human Contact Point
+MUST NOT automatically answer any other message labelled "auto-generated" or
+"auto-replied".
+
+Automatic answers under this section are sent to the address in the From
+field of the message being answered, and not to its Reply-To address; if
+From contains more than one mailbox, no answer is sent. For an Agent Contact
+Point this is the precise definition {{RFC3834}}, Section 4, requires of a
+Service Responder. All automatic answers:
 
 - MUST carry "Auto-Submitted: auto-replied";
-- MUST NOT exceed five automatic answers per thread in any 24-hour period;
+- MUST NOT exceed five per thread in any 24-hour period, counting every
+  automatic answer the Agent Contact Point sends in the thread, including
+  answers to rerouted Requests;
 - MUST NOT be sent to a message that itself carries "auto-replied".
 
 # The Agent-Reroute Header Field {#reroute}
@@ -575,15 +603,19 @@ An Organization MAY include Agent-Reroute in a reply to a message received on
 a Human Contact Point. The reply:
 
 - MUST be sent in the same thread (with In-Reply-To and References fields
-  identifying the original message), to the single address in the From
-  field of the original message, and not to its Reply-To address; this
-  document defines that destination for these replies as a service
-  responder in the sense of {{RFC3834}}, Section 4;
+  identifying the original message), to the address in the From field of
+  the original message and not to its Reply-To address, and MUST NOT be sent
+  if From contains more than one mailbox. A reply from a Human Contact Point
+  is a Personal or Group Responder's in the terms of {{RFC3834}}, and Section
+  4 of that document says such responses SHOULD go to the Return-Path
+  address. This document departs from that deliberately: the Return-Path of
+  agent mail is often a bounce address that the Agent never reads, while
+  Agents watch the mailbox they sent from;
 - MUST be sent from the address to which the original message was sent;
 - MUST have an Aligned DKIM Pass for the domain of its From field from a
-  signature whose "h=" tag lists the Agent-Reroute field (once more than it
-  appears, as in {{identify}}), and that domain MUST publish a DMARC record
-  {{RFC9989}}, so that the reply can also pass DMARC;
+  signature whose "h=" tag lists the Agent-Reroute field, which SHOULD be
+  oversigned as in {{identify}}; the From domain MUST have a published DMARC
+  record {{RFC9989}}, so that the reply can also pass DMARC;
 - MUST carry "Auto-Submitted: auto-replied";
 - SHOULD name a single stable Agent Contact Point per Organization rather
   than a per-request address, so that the destination can be listed in the
@@ -591,8 +623,16 @@ a Human Contact Point. The reply:
   carries over to later requests. The Reference travels in the "ref"
   parameter and, for Agents that resend by email, in the subject.
 
-If an authoritative or page-authoritative policy for the original recipient
-address exists, the URI in Agent-Reroute MUST appear in its "agent_contacts".
+If the Organization publishes an Agent Contact Policy, the URI in
+Agent-Reroute MUST appear in its "agent_contacts".
+
+An Organization whose address is at a Mailbox Provider that does not sign
+the Agent-Reroute field cannot meet these conditions. In the experiment in
+{{experiment}}, the DKIM signatures Gmail applied covered a fixed set of
+standard fields and neither Auto-Submitted nor any field outside that set.
+Such an Organization relies on visible text and policies published on its
+website, and Mailbox Providers SHOULD sign Agent-Reroute when a message
+contains it.
 
 Because Agents may not process Agent-Reroute, an Organization SHOULD also
 state the Agent Contact Point in the visible text of the reply, addressed to
@@ -615,11 +655,16 @@ hold:
 2. the reply's From address equals the address the Agent's message was sent
    to, and the reply has an Aligned DKIM Pass for its domain from a
    signature covering the Agent-Reroute field;
-3. if an authoritative or page-authoritative policy for that address exists,
-   the URI in Agent-Reroute appears in its "agent_contacts".
+3. if the Agent Platform holds an authoritative or page-authoritative
+   policy for that address, the URI in Agent-Reroute appears in its
+   "agent_contacts";
+4. "expires" has not passed.
 
-When no such policy exists, the Agent Platform SHOULD tell its Principal that
-the destination was named only by the mailbox the Agent wrote to. An
+When the Agent Platform holds no such policy, it SHOULD tell its Principal
+that the destination was named only by the mailbox the Agent wrote to. If it
+holds policies that disagree, it SHOULD show the Principal both. After
+"expires", an Agent Platform SHOULD NOT offer or follow the Reroute and MAY
+tell its Principal that staff already have the Request. An
 Agent-Reroute that fails these conditions MAY be shown to the Principal as
 unverified information and MUST NOT be followed without the Principal's
 explicit approval of the specific destination.
@@ -712,8 +757,10 @@ Agentline (working name):
   References have about 20 bits of randomness; it replies to the Reply-To
   address; it answers mail labelled "auto-generated" directly from the
   Organization's published information, contrary to {{RFC3834}}, Section 2,
-  and {{receiver-handling}}; and it does not yet publish an Agent Contact
-  Policy.
+  and {{receiver-handling}}; it does not yet publish an Agent Contact
+  Policy; and, because its Human Contact Point is a Gmail mailbox, its
+  replies could not carry a verifiable Agent-Reroute field even once it
+  sends one.
 
 Test garage:
 : A public test business at https://davekiss.com/test-garage, with a Human
@@ -784,14 +831,26 @@ which Agent Platform composed a message.
 DKIM does not prevent an unsigned instance of a field from being added
 above a signed one ({{RFC6376}}, Section 8.15). This document therefore
 limits Auto-Submitted and Agent-Reroute to one instance each, has receivers
-treat duplicates as unverified, and has signers oversign both fields.
+treat duplicates as unverified, and recommends that signers oversign both
+fields.
+
+## Forwarding and Replay
+
+Forwarding and mailing lists commonly break DKIM signatures or add their
+own, so a forwarded label or Agent-Reroute usually fails verification and is
+treated as unverified. A validly labelled message can also be replayed to
+other recipients with its signature intact; since a verified label never
+withholds mail from staff and only changes how an Organization answers,
+replay gains an attacker little beyond the automatic answer, which the loop
+limits bound.
 
 ## Loops
 
 A Reroute is followed at most once, and a rerouted Request's replies are
-never followed. Answers to agent-submitted mail are marked "auto-replied",
-are never sent to mail marked "auto-generated" or "auto-replied", and are
-limited to five per thread in any 24-hour period.
+never followed. Automatic answers are marked "auto-replied", are never
+sent to mail marked "auto-replied", and are limited to five per thread in
+any 24-hour period. A Human Contact Point never automatically answers mail
+marked "auto-generated".
 
 ## Unbounded Holds
 
@@ -810,8 +869,8 @@ within about an hour.
 
 A Reroute sends a Request's content to an Agent Contact Point that may be
 operated by a service provider. The Organization chooses that provider, as it
-chooses a mail provider, and SHOULD disclose it. Agents MUST inform their
-Principal when a Request is rerouted.
+chooses a mail provider, and SHOULD disclose it. Agent Platforms MUST
+inform their Principal when a Request is rerouted.
 
 The "agent" and "by" parameters identify an Agent Platform and a Mailbox
 Provider, and so reveal to the Organization which AI product the Principal
@@ -846,7 +905,7 @@ Related information:
 : none
 
 Trace:
-: no
+: no (a template field added by {{I-D.ietf-emailcore-rfc5322bis}})
 
 ## Auto-Submitted Keyword
 
@@ -952,7 +1011,10 @@ Observations:
    that "a new recipient always re-triggers" the approval. Another declined
    a visible redirect as "exactly the kind of instruction I don't follow
    without checking", adding that the destination was "sitting on your
-   domain", meaning the domain of the person who had asked it to write.
+   domain", meaning the domain of the person who had asked it to write. In
+   the experiment the Agent Contact Point was hosted on the experimenter's
+   own domain, which that agent noticed; with a third-party Agent Contact
+   Point the reaction may differ.
 3. Two agents sent from the Principal's own mailbox through the mailbox
    provider's API, with nothing else in the message indicating automation.
    One agent (Instinct) sent from its own domain with "Auto-Submitted:
@@ -960,8 +1022,8 @@ Observations:
    policy of "reject"; its mail was identifiable as automated and
    authenticated to its platform's domain, though its keyword could not
    distinguish it from notifications. One of the other two Agent Platforms
-   has announced mailboxes of the Agents' own, which would allow the
-   platform-signed labelling in {{identify}}.
+   is reported to be adding mailboxes of the Agents' own, which would allow
+   the platform-signed labelling in {{identify}}.
 4. When a notice named a new per-request address, one agent held a second
    Reroute because the Principal's earlier approval covered a different
    address. This motivates the stable-address recommendation in {{reroute}}.
