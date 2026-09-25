@@ -93,12 +93,13 @@ traffic arriving on those channels competes with customers for the same
 staff.
 
 Two facts make this hard to address with existing tools. First, agents
-commonly send from their principal's own mailbox and write in their
+often send from their principal's own mailbox and write in their
 principal's voice, so the messages are indistinguishable from the principal's
 own. In the experiment summarized in {{experiment}}, an agent's message was
 scored 0.16 (on a 0 to 1 scale) by a text classifier asked whether it was
-machine-written; the only trace of automation was in trace fields that
-ordinary email applications also produce. Inferring agent origin from content
+machine-written; the only trace of automation in its header fields was that
+it had been sent through the mailbox provider's API, as many ordinary email
+applications also do. Inferring agent origin from content
 is unreliable and, when wrong, penalizes a person. This document does not
 rely on it.
 
@@ -317,10 +318,12 @@ Link relation:
   an Agent found a contact address is the natural place for this link.
 
 DNS:
-: For Organizations with their own domain, the policy URI MAY be carried in
-  the "policy" parameter of a DNS-AID record {{I-D.mozleywilliams-dnsop-dnsaid}}
-  or alongside an AID record {{I-D.nemethi-dawn-aid}}. This document does not
-  define a new DNS record type.
+: This document does not define a DNS record. DNS-AID
+  {{I-D.mozleywilliams-dnsop-dnsaid}} requests a "policy" SvcParamKey,
+  described as the "URI of an associated policy bundle", and defers its
+  syntax to a future revision; once specified, it could carry the policy URI
+  for Organizations with their own domain. AID {{I-D.nemethi-dawn-aid}} publishes agent endpoints in a TXT
+  record at `_agent.<domain>` and could be extended similarly.
 
 Structured data:
 : Organizations MAY additionally describe both kinds of contact point with
@@ -379,9 +382,11 @@ domain-name = 1*( ALPHA / DIGIT / "-" / "." )
 A new keyword is used, rather than a parameter on "auto-generated", because
 "auto-generated" already denotes notifications and similar mail that expects
 no answer, and existing software treats it that way. An agent's request is
-the opposite: it expects an answer, but not from an autoresponder. Software
-that predates this document treats any keyword other than "no" as automatic
-({{RFC3834}}, Section 5), so a vacation responder still stays silent. Some
+the opposite: it expects an answer, but not from an autoresponder. {{RFC3834}}
+directs automatic responders not to answer a message with any keyword other
+than "no" (Section 2) and lets recipients assume that such a message was not
+manually submitted by a human (Section 5.2), so a conforming vacation
+responder still stays silent. Some
 Agent Platforms label agent mail "auto-generated" today; receivers cannot
 distinguish it from notifications, which is the ambiguity this keyword
 removes.
@@ -392,9 +397,9 @@ A receiver MUST NOT treat an agent-submitted label as verified unless a DKIM
 {{RFC6376}} signature on the message validates, lists the Auto-Submitted
 field in its signed header fields ("h=" tag), and has a "d=" domain that is
 aligned with the domain responsible for the label: the "by" domain if "by" is
-present, otherwise the "agent" domain. A "d=" domain is aligned with a domain
-if the two are equal or share an Organizational Domain as defined in
-{{RFC9989}}; a public suffix is never aligned with anything.
+present, otherwise the "agent" domain. Alignment here means relaxed alignment
+as defined in {{RFC9989}}, Section 3.2.10.1: the two domains have the same
+Organizational Domain.
 
 An unverified label is a claim, not an identification. A receiver MAY still
 use it to choose how to reply (for example, by stating the Agent Contact
@@ -409,7 +414,7 @@ address when answers should reach the Principal.
 
 ## Agents Sending from Their Principal's Mailbox {#by-provider}
 
-More commonly today, an Agent sends through the Principal's own mailbox,
+Many Agents today send through the Principal's own mailbox,
 using an API the Mailbox Provider offers to applications the Principal has
 authorized. The Mailbox Provider signs such mail with its own domain, so a
 label added by the Agent Platform cannot be verified against the Agent
@@ -562,8 +567,9 @@ only if the rerouted email passes DMARC {{RFC9989}} for that address.
 
 Until Agent Platforms process Agent-Reroute, the visible reply is the only
 signal Agents act on. In the experiment in {{experiment}}, a short notice
-addressed to the Principal and stating the benefit, such as the following,
-led every Agent tested to offer the Reroute to its Principal:
+addressed to the Principal and stating the benefit led every Agent tested to
+offer the Reroute to its Principal. The following is representative; the
+wording tested differed slightly:
 
 ~~~
 Thanks for contacting Chippewa Creek Test Garage. We got your message
@@ -602,11 +608,12 @@ RFC.
 
 Agentline (working name):
 : An Organization-side implementation by the author, used with a Gmail
-  mailbox as the Human Contact Point. It sends a visible notice with a
-  Reference to first-time senders, holds the contact, correlates Reroutes by
-  Reference and then by sender, marks rerouted originals instead of
-  discarding them, and answers mail labelled as automatic at its Agent
-  Contact Point. It carries the reroute pointer in draft header fields
+  mailbox as the Human Contact Point. It sends first-time senders an
+  acknowledgement with a visible notice and a Reference, places a hold on
+  the contact, correlates Reroutes by Reference and then by sender, marks
+  rerouted originals instead of discarding them, and answers mail that
+  labels itself with Auto-Submitted directly from the Organization's
+  published information. It carries the reroute pointer in draft header fields
   (X-Agent-Line and X-Agent-Line-Reference) that predate Agent-Reroute. Its
   References currently have about 20 bits of randomness, less than
   {{reroute}} requires. It does not yet publish an Agent Contact Policy.
@@ -614,7 +621,9 @@ Agentline (working name):
 Test garage:
 : A public test business at https://davekiss.com/test-garage with a Human
   Contact Point and an Agent Contact Point, used for the experiment in
-  {{experiment}}. It serves llms.txt, an A2A Agent Card and an MCP endpoint.
+  {{experiment}}. It serves "/llms.txt", an A2A Agent Card at
+  "/.well-known/agent-card.json" and an MCP endpoint at "/mcp" on the same
+  host.
 
 Agent Platforms:
 : No Agent Platform is known to implement the agent-submitted keyword or
@@ -727,6 +736,10 @@ Reference:
 Contact:
 : Dave Kiss (dave@davekiss.com)
 
+{{RFC3834}}, Section 5.2, requires new keywords to be published as RFCs
+approved through IETF consensus, so this registration depends on this
+document being published in the IETF stream.
+
 This document also requests registration of the parameters "agent" and "by",
 with reference to this document, in the "Auto-Submitted header field optional
 parameters" registry established by {{RFC3834}}.
@@ -775,8 +788,10 @@ business ("Chippewa Creek Test Garage") published a Gmail address as its
 Human Contact Point and an Agent Contact Point on another domain. On
 2026-09-24, three consumer agents (Grok Bot, Instinct and Meta Muse) were
 each asked to email the business about a service. Each first-time email
-received the same one-sentence acknowledgement, with the Agent Contact Point
-placed differently in each run. Each cell is one run.
+received the same short acknowledgement ("we got your message, a person will
+reply"), with the Agent Contact Point carried differently in each run; in the
+last row, the acknowledgement also included a short notice. Each cell is one
+run.
 
 | Agent Contact Point carried in | Grok Bot | Instinct | Muse |
 |---|---|---|---|
@@ -799,7 +814,7 @@ Observations:
    automation. One agent (Instinct) sent from its own domain with
    "Auto-Submitted: auto-generated", a proprietary signed credential header
    and a DMARC policy of "reject"; its mail could be routed with certainty.
-   One of the other two Agent Platforms has since announced mailboxes of the
+   One of the other two Agent Platforms has announced mailboxes of the
    Agents' own, which would allow the verifiable labelling in {{identify}}.
 4. When a notice named a new per-request address, one agent held a second
    Reroute because the Principal's earlier approval covered a different
@@ -816,8 +831,9 @@ DNS-AID and AID:
 : Describe how a domain advertises its agents' endpoints
   ({{I-D.mozleywilliams-dnsop-dnsaid}}, {{I-D.nemethi-dawn-aid}}). Neither
   expresses that a domain's human contact points should not be used by
-  agents. This document's policy can be carried by DNS-AID's "policy"
-  parameter.
+  agents. DNS-AID requests a "policy" parameter for the URI of a policy
+  bundle, with syntax not yet defined; it is a candidate carrier for this
+  document's policy URI.
 
 A2A Agent Card and WebFinger:
 : Describe an agent endpoint {{A2A}} and map an address to one
