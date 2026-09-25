@@ -155,8 +155,9 @@ genuine customer. It is also not a goal to detect agents from the content or
 style of their messages; nothing in this document depends on such detection.
 
 This document covers email in detail. The Agent Contact Policy also lists
-telephone and protocol endpoints ({{phone}}); a mechanism comparable to
-Agent-Reroute for voice calls is left for future work.
+telephone and protocol endpoints ({{phone}}), and web forms follow the email
+pattern ({{forms}}); a mechanism comparable to Agent-Reroute for voice calls
+is left for future work.
 
 ## Requirements Language
 
@@ -755,6 +756,30 @@ deployed for this purpose. A voice greeting may state the agent number to
 the caller. Business listing platforms, from which Agents commonly obtain
 phone numbers, are the likely registry; defining a listing field is out of
 scope.
+
+# Web Forms {#forms}
+
+A web form is a Human Contact Point like an email address, and the same
+pattern applies without new mechanisms. An Organization lists the form's
+"https:" URI in "human_contacts", and lists an agent-facing form, an MCP
+endpoint or an A2A Agent Card in "agent_contacts". The form's page can link
+to the policy with the "agent-contact-policy" link relation, in HTML or in
+an HTTP Link header field {{RFC8288}}, so an Agent can find it before
+submitting.
+
+The confirmation page shown after a submission plays the role of the reply
+in {{reroute}}: it can carry the visible notice of {{visible-text}}, with a
+Reference, and a link to the policy. The Organization can hold the
+submission and correlate a Reroute by its Reference as for email. A
+submission signed with Web Bot Auth {{I-D.ietf-webbotauth-httpsig-protocol}}
+identifies the Agent Platform in the way a verified agent-submitted label
+does for email, and an Organization MAY route it to its Agent Contact Point
+on that basis; as with labels, such a signature never causes a submission
+to be withheld from staff.
+
+In the test business's runs before the experiment in {{experiment}}, one
+agent that read the business's page submitted its agent-facing form rather
+than its human contact form. That is a single observation.
 
 # Implementation Status
 
