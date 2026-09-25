@@ -438,7 +438,8 @@ in {{by-provider}}. The syntax follows {{RFC3834}}, Section 5.1, whose
 "parameter" is defined in {{RFC2045}} as amended by {{RFC2231}}; parameter
 values are tokens or quoted strings, and after removing any quoting, the
 values of "agent" and "by" MUST match the "Domain" rule of {{RFC5321}},
-Section 4.1.2, using A-labels for internationalized names. Unknown
+Section 4.1.2, within the length limit of Section 4.5.3.1.2 of that
+document, using A-labels for internationalized names. Unknown
 parameters MUST be ignored.
 
 A message MUST NOT carry more than one Auto-Submitted field ({{RFC3834}},
@@ -866,8 +867,8 @@ Organization but not across them.
 
 A Reroute is followed at most once, and a rerouted Request's replies are
 never followed. Automatic answers are marked "auto-replied", are never
-sent to mail marked "auto-replied", and are limited to five per thread in
-any 24-hour period. A Human Contact Point never automatically answers mail
+sent to mail marked "auto-replied", are limited to five per thread in any
+24-hour period, and should be rate-limited per sender. A Human Contact Point never automatically answers mail
 marked "auto-generated".
 
 ## Unbounded Holds
@@ -1051,11 +1052,18 @@ Observations:
    classifier and is anecdotal.
 7. Three messages sent from a gmail.com account to the test business on
    2026-09-24 between 18:46 and 18:52 UTC carried DKIM signatures with
-   d=gmail.com and this "h=" list:
-   "content-type:to:subject:message-id:date:mime-version:from:from:to:cc:
-   subject:date:message-id:reply-to:content-type" (shown wrapped). Neither
-   Auto-Submitted nor any field outside this set was signed; this is the
-   basis for the statement about Gmail in {{reroute}}.
+   d=gmail.com and this "h=" list (wrapped here):
+
+   ~~~
+   content-type:to:subject:message-id:date:mime-version:from:
+   from:to:cc:subject:date:message-id:reply-to:content-type
+   ~~~
+
+   The list names fields the messages did not contain ("cc" and "reply-to"),
+   which indicates a fixed list rather than one built from the message, and
+   it does not include Auto-Submitted or any field outside it. Gmail signs
+   an Organization's replies with the same domain, which is the basis for
+   the statement about Gmail in {{reroute}}.
 
 These results come from a small number of runs with three agents on one day
 and should be read as directional.

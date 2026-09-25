@@ -1983,7 +1983,8 @@ in <a href="#by-provider" class="auto internal xref">Section 4.4</a>. The syntax
 "parameter" is defined in <span>[<a href="#RFC2045" class="cite xref">RFC2045</a>]</span> as amended by <span>[<a href="#RFC2231" class="cite xref">RFC2231</a>]</span>; parameter
 values are tokens or quoted strings, and after removing any quoting, the
 values of "agent" and "by" <span class="bcp14">MUST</span> match the "Domain" rule of <span>[<a href="#RFC5321" class="cite xref">RFC5321</a>]</span>,
-Section 4.1.2, using A-labels for internationalized names. Unknown
+Section 4.1.2, within the length limit of Section 4.5.3.1.2 of that
+document, using A-labels for internationalized names. Unknown
 parameters <span class="bcp14">MUST</span> be ignored.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 <p id="section-4.1-5">A message <span class="bcp14">MUST NOT</span> carry more than one Auto-Submitted field (<span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>,
 Section 5.1); a receiver <span class="bcp14">MUST</span> treat a message with more than one as having
@@ -2540,8 +2541,8 @@ Organization but not across them.<a href="#section-8.7-1" class="pilcrow">¶</a>
         </h3>
 <p id="section-8.8-1">A Reroute is followed at most once, and a rerouted Request's replies are
 never followed. Automatic answers are marked "auto-replied", are never
-sent to mail marked "auto-replied", and are limited to five per thread in
-any 24-hour period. A Human Contact Point never automatically answers mail
+sent to mail marked "auto-replied", are limited to five per thread in any
+24-hour period, and should be rate-limited per sender. A Human Contact Point never automatically answers mail
 marked "auto-generated".<a href="#section-8.8-1" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -3038,11 +3039,19 @@ classifier and is anecdotal.<a href="#appendix-A-5.6.1" class="pilcrow">¶</a></
         <li id="appendix-A-5.7">
           <p id="appendix-A-5.7.1">Three messages sent from a gmail.com account to the test business on
 2026-09-24 between 18:46 and 18:52 UTC carried DKIM signatures with
-d=gmail.com and this "h=" list:
-"content-type:to:subject:message-id:date:mime-version:from:from:to:cc:
-subject:date:message-id:reply-to:content-type" (shown wrapped). Neither
-Auto-Submitted nor any field outside this set was signed; this is the
-basis for the statement about Gmail in <a href="#reroute" class="auto internal xref">Section 5</a>.<a href="#appendix-A-5.7.1" class="pilcrow">¶</a></p>
+d=gmail.com and this "h=" list (wrapped here):<a href="#appendix-A-5.7.1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A-5.7.2">
+<pre>
+content-type:to:subject:message-id:date:mime-version:from:
+from:to:cc:subject:date:message-id:reply-to:content-type
+</pre><a href="#appendix-A-5.7.2" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A-5.7.3">
+The list names fields the messages did not contain ("cc" and "reply-to"),
+which indicates a fixed list rather than one built from the message, and
+it does not include Auto-Submitted or any field outside it. Gmail signs
+an Organization's replies with the same domain, which is the basis for
+the statement about Gmail in <a href="#reroute" class="auto internal xref">Section 5</a>.<a href="#appendix-A-5.7.3" class="pilcrow">¶</a></p>
 </li>
       </ol>
 <p id="appendix-A-6">These results come from a small number of runs with three agents on one day
