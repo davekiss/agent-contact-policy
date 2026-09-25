@@ -1023,26 +1023,28 @@ Internet-Draft            Agent Contact Policy            September 2026
    Agentline (working name):  An Organization-side implementation by the
       author, used with a Gmail mailbox as the Human Contact Point in
       the experiment in Appendix A.  It sends first-time senders an
-      acknowledgement with a visible notice and a Reference, places a
-      hold on the contact, correlates Reroutes by Reference and then by
-      sender, and marks rerouted originals instead of discarding them.
-      It differs from this document in several ways that are planned to
-      change: it carries the reroute pointer in draft header fields (X-
-      Agent-Line and X-Agent-Line-Reference) that predate Agent-Reroute;
-      its References have about 20 bits of randomness; it replies to the
-      Reply-To address; it answers mail labelled "auto-generated"
-      directly from the Organization's published information, contrary
-      to [RFC3834], Section 2, and Section 4.5; it does not yet publish
-      an Agent Contact Policy; and, because its Human Contact Point is a
-      Gmail mailbox, its replies could not carry a verifiable Agent-
-      Reroute field even once it sends one.
+      acknowledgement with a visible notice, a Reference of 13
+      characters and an Agent-Reroute field with "ref" and "expires";
+      places a hold of at most one hour; replies to the From address;
+      correlates Reroutes by Reference, or by sender only when the
+      message has an Aligned DKIM Pass and one hold is open; marks
+      rerouted originals instead of discarding them; and caps automatic
+      replies per thread and per sender.  It still departs from this
+      document in two ways: it can be set to answer mail labelled "auto-
+      generated" on the Human Contact Point, contrary to [RFC3834],
+      Section 2, and Section 4.5; and, because its Human Contact Point
+      is a Gmail mailbox, its Agent-Reroute field is not covered by the
+      DKIM signature and so cannot be verified.
 
    Test garage:  A public test business at https://davekiss.com/test-
       garage, with a Human Contact Point and an Agent Contact Point at
-      garage.davekiss.com.  It serves "/llms.txt", an A2A Agent Card at
-      "/.well-known/agent-card.json" and an MCP endpoint at "/mcp" on
-      the same host.  Its public contact addresses differ from the Gmail
-      mailbox and agent line used in Appendix A.
+      garage.davekiss.com.  It publishes an Agent Contact Policy at
+      "https://davekiss.com/.well-known/agent-contact-policy", linked
+      from its page with the "agent-contact-policy" relation, and serves
+      "/llms.txt", an A2A Agent Card at "/.well-known/agent-card.json"
+      and an MCP endpoint at "/mcp" on the same host.  Its public
+      contact addresses differ from the Gmail mailbox and agent line
+      used in Appendix A.
 
    Agent Platforms:  No Agent Platform is known to implement the agent-
       submitted keyword or Agent-Reroute.  One (Instinct) labels its
@@ -1052,8 +1054,6 @@ Internet-Draft            Agent Contact Policy            September 2026
       credential header.
 
 9.  Security Considerations
-
-
 
 
 
