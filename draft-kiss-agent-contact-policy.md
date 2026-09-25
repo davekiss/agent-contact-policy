@@ -509,16 +509,22 @@ A Mailbox Provider that asserts labels:
   "agent-submitted" with an "agent" parameter naming the application's
   registered domain and a "by" parameter naming a domain it signs for, and
   sign the field;
-- MUST remove, from every message it signs, any agent-submitted field whose
-  "agent" or "by" parameter is in relaxed alignment with any domain it signs
-  for, unless it set that field itself, so that neither a user nor an
-  application can forge its assertion.
+- MUST remove, from every message it signs with a domain shared by many
+  independent accounts (for example, a consumer webmail domain), any
+  agent-submitted field whose "agent" or "by" parameter is in relaxed
+  alignment with that domain, unless it set that field itself, so that
+  neither a user nor an application can forge its assertion.
 
-This applies to any operator that signs mail on behalf of users, whether or
-not it asserts labels. A provider that signs mail for customers' own domains
-(for example, a hosted mail service) can assert labels only with "by" set to
-the customer's domain, so a receiver cannot tell its assertion from the
+Any other operator that signs mail with a domain shared by many independent
+accounts, and lists Auto-Submitted in "h=", SHOULD do the same. For a domain
+that belongs to one customer, such as an Agent Platform's own domain signed
+by its sending service, the domain's owner is responsible for what is
+labelled under it, and a signer need not strip anything. A provider that
+signs mail for customers' own domains can assert labels only with "by" set
+to the customer's domain, so a receiver cannot tell its assertion from the
 customer's; this document gives such providers no stronger mechanism.
+Receivers should bear in mind that a platform-signed label from a domain
+that also hosts ordinary user mailboxes may have been written by a user.
 
 The Agent Platform SHOULD also add a Sender field {{RFC5322}} naming a
 mailbox it controls, preserving the Principal in From. Mail signed by
@@ -534,8 +540,9 @@ Agent Contact Policy and Agent-Reroute instead.
 
 An Agent Contact Point is a Service Responder in the sense of {{RFC3834}},
 Section 1.1: a sender writing to it expects an automatic response. It MAY
-answer any Request, whatever its Auto-Submitted value, except one labelled
-"auto-replied".
+answer any message sent to it, whatever its Auto-Submitted value, except one
+labelled "auto-replied", notwithstanding {{RFC3834}}, Section 2, because
+its senders expect an automatic response.
 
 On a Human Contact Point, a message with a verified agent-submitted label is
 a request that expects an answer. The receiver MAY route it to its Agent
@@ -553,8 +560,12 @@ Service Responder. All automatic answers:
 
 - MUST carry "Auto-Submitted: auto-replied";
 - MUST NOT exceed five per thread in any 24-hour period, counting every
-  automatic answer the Agent Contact Point sends in the thread, including
-  answers to rerouted Requests;
+  automatic answer the Organization sends in the thread from any of its
+  contact points, including acknowledgements and answers to rerouted
+  Requests;
+- SHOULD be rate-limited per sender address across threads, so that
+  replayed or forged Requests cannot turn the Organization into a source of
+  unwanted mail;
 - MUST NOT be sent to a message that itself carries "auto-replied".
 
 # The Agent-Reroute Header Field {#reroute}
@@ -606,8 +617,8 @@ a Human Contact Point. The reply:
   identifying the original message), to the address in the From field of
   the original message and not to its Reply-To address, and MUST NOT be sent
   if From contains more than one mailbox. A reply from a Human Contact Point
-  is a Personal or Group Responder's in the terms of {{RFC3834}}, and Section
-  4 of that document says such responses SHOULD go to the Return-Path
+  is a response from a Personal or Group Responder in the terms of
+  {{RFC3834}}, and Section 4 of that document says such responses SHOULD go to the Return-Path
   address. This document departs from that deliberately: the Return-Path of
   agent mail is often a bounce address that the Agent never reads, while
   Agents watch the mailbox they sent from;
@@ -717,6 +728,11 @@ chippewa-creek@line.example with HL-8V2CQ7M3KX9TD in the subject. The
 agent line replies right away from our published information and passes
 anything it can't answer to staff.
 ~~~
+
+The visible notice carries no expiry, but the Reroute stops being useful
+once the original has been delivered to staff; the notice SHOULD say so (for
+example, "within the next hour") so that a Principal who reads it later does
+not resend a Request staff already have.
 
 Wording addressed to "AI assistants" rather than to the Principal was treated
 by one Agent as an unverified instruction and declined. Because the same
@@ -841,8 +857,10 @@ own, so a forwarded label or Agent-Reroute usually fails verification and is
 treated as unverified. A validly labelled message can also be replayed to
 other recipients with its signature intact; since a verified label never
 withholds mail from staff and only changes how an Organization answers,
-replay gains an attacker little beyond the automatic answer, which the loop
-limits bound.
+replay gains an attacker little beyond the automatic answers it causes. Replayed to
+many Organizations, those answers all go to the original From address; the
+per-sender rate limit in {{receiver-handling}} bounds this at each
+Organization but not across them.
 
 ## Loops
 
@@ -1031,6 +1049,13 @@ Observations:
    shell-execution tool within about an hour of publication.
 6. The 0.16 score in the Introduction is for a single message from one
    classifier and is anecdotal.
+7. Three messages sent from a gmail.com account to the test business on
+   2026-09-24 between 18:46 and 18:52 UTC carried DKIM signatures with
+   d=gmail.com and this "h=" list:
+   "content-type:to:subject:message-id:date:mime-version:from:from:to:cc:
+   subject:date:message-id:reply-to:content-type" (shown wrapped). Neither
+   Auto-Submitted nor any field outside this set was signed; this is the
+   basis for the statement about Gmail in {{reroute}}.
 
 These results come from a small number of runs with three agents on one day
 and should be read as directional.

@@ -2069,17 +2069,23 @@ registered domain and a "by" parameter naming a domain it signs for, and
 sign the field;<a href="#section-4.4-3.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.4-3.2">
-            <p id="section-4.4-3.2.1"><span class="bcp14">MUST</span> remove, from every message it signs, any agent-submitted field whose
-"agent" or "by" parameter is in relaxed alignment with any domain it signs
-for, unless it set that field itself, so that neither a user nor an
-application can forge its assertion.<a href="#section-4.4-3.2.1" class="pilcrow">¶</a></p>
+            <p id="section-4.4-3.2.1"><span class="bcp14">MUST</span> remove, from every message it signs with a domain shared by many
+independent accounts (for example, a consumer webmail domain), any
+agent-submitted field whose "agent" or "by" parameter is in relaxed
+alignment with that domain, unless it set that field itself, so that
+neither a user nor an application can forge its assertion.<a href="#section-4.4-3.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-4.4-4">This applies to any operator that signs mail on behalf of users, whether or
-not it asserts labels. A provider that signs mail for customers' own domains
-(for example, a hosted mail service) can assert labels only with "by" set to
-the customer's domain, so a receiver cannot tell its assertion from the
-customer's; this document gives such providers no stronger mechanism.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
+<p id="section-4.4-4">Any other operator that signs mail with a domain shared by many independent
+accounts, and lists Auto-Submitted in "h=", <span class="bcp14">SHOULD</span> do the same. For a domain
+that belongs to one customer, such as an Agent Platform's own domain signed
+by its sending service, the domain's owner is responsible for what is
+labelled under it, and a signer need not strip anything. A provider that
+signs mail for customers' own domains can assert labels only with "by" set
+to the customer's domain, so a receiver cannot tell its assertion from the
+customer's; this document gives such providers no stronger mechanism.
+Receivers should bear in mind that a platform-signed label from a domain
+that also hosts ordinary user mailboxes may have been written by a user.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
 <p id="section-4.4-5">The Agent Platform <span class="bcp14">SHOULD</span> also add a Sender field <span>[<a href="#RFC5322" class="cite xref">RFC5322</a>]</span> naming a
 mailbox it controls, preserving the Principal in From. Mail signed by
 several parties along its path, as proposed in <span>[<a href="#I-D.ietf-dkim-dkim2-spec" class="cite xref">I-D.ietf-dkim-dkim2-spec</a>]</span>,
@@ -2097,8 +2103,9 @@ Agent Contact Policy and Agent-Reroute instead.<a href="#section-4.4-6" class="p
         </h3>
 <p id="section-4.5-1">An Agent Contact Point is a Service Responder in the sense of <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>,
 Section 1.1: a sender writing to it expects an automatic response. It <span class="bcp14">MAY</span>
-answer any Request, whatever its Auto-Submitted value, except one labelled
-"auto-replied".<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+answer any message sent to it, whatever its Auto-Submitted value, except one
+labelled "auto-replied", notwithstanding <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>, Section 2, because
+its senders expect an automatic response.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
 <p id="section-4.5-2">On a Human Contact Point, a message with a verified agent-submitted label is
 a request that expects an answer. The receiver <span class="bcp14">MAY</span> route it to its Agent
 Contact Point and answer it from there, notwithstanding the general guidance
@@ -2117,11 +2124,17 @@ Service Responder. All automatic answers:<a href="#section-4.5-3" class="pilcrow
 </li>
           <li class="normal" id="section-4.5-4.2">
             <p id="section-4.5-4.2.1"><span class="bcp14">MUST NOT</span> exceed five per thread in any 24-hour period, counting every
-automatic answer the Agent Contact Point sends in the thread, including
-answers to rerouted Requests;<a href="#section-4.5-4.2.1" class="pilcrow">¶</a></p>
+automatic answer the Organization sends in the thread from any of its
+contact points, including acknowledgements and answers to rerouted
+Requests;<a href="#section-4.5-4.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.5-4.3">
-            <p id="section-4.5-4.3.1"><span class="bcp14">MUST NOT</span> be sent to a message that itself carries "auto-replied".<a href="#section-4.5-4.3.1" class="pilcrow">¶</a></p>
+            <p id="section-4.5-4.3.1"><span class="bcp14">SHOULD</span> be rate-limited per sender address across threads, so that
+replayed or forged Requests cannot turn the Organization into a source of
+unwanted mail;<a href="#section-4.5-4.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.5-4.4">
+            <p id="section-4.5-4.4.1"><span class="bcp14">MUST NOT</span> be sent to a message that itself carries "auto-replied".<a href="#section-4.5-4.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -2195,8 +2208,8 @@ a Human Contact Point. The reply:<a href="#section-5.2-1" class="pilcrow">¶</a>
 identifying the original message), to the address in the From field of
 the original message and not to its Reply-To address, and <span class="bcp14">MUST NOT</span> be sent
 if From contains more than one mailbox. A reply from a Human Contact Point
-is a Personal or Group Responder's in the terms of <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>, and Section
-4 of that document says such responses <span class="bcp14">SHOULD</span> go to the Return-Path
+is a response from a Personal or Group Responder in the terms of
+<span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>, and Section 4 of that document says such responses <span class="bcp14">SHOULD</span> go to the Return-Path
 address. This document departs from that deliberately: the Return-Path of
 agent mail is often a bounce address that the Agent never reads, while
 Agents watch the mailbox they sent from;<a href="#section-5.2-2.1.1" class="pilcrow">¶</a></p>
@@ -2339,10 +2352,14 @@ agent line replies right away from our published information and passes
 anything it can't answer to staff.
 </pre><a href="#section-5.5-2" class="pilcrow">¶</a>
 </div>
-<p id="section-5.5-3">Wording addressed to "AI assistants" rather than to the Principal was treated
+<p id="section-5.5-3">The visible notice carries no expiry, but the Reroute stops being useful
+once the original has been delivered to staff; the notice <span class="bcp14">SHOULD</span> say so (for
+example, "within the next hour") so that a Principal who reads it later does
+not resend a Request staff already have.<a href="#section-5.5-3" class="pilcrow">¶</a></p>
+<p id="section-5.5-4">Wording addressed to "AI assistants" rather than to the Principal was treated
 by one Agent as an unverified instruction and declined. Because the same
 reply is sent to every first-time sender, a notice <span class="bcp14">MUST NOT</span> claim that the
-sender was detected as an Agent.<a href="#section-5.5-3" class="pilcrow">¶</a></p>
+sender was detected as an Agent.<a href="#section-5.5-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2510,8 +2527,10 @@ own, so a forwarded label or Agent-Reroute usually fails verification and is
 treated as unverified. A validly labelled message can also be replayed to
 other recipients with its signature intact; since a verified label never
 withholds mail from staff and only changes how an Organization answers,
-replay gains an attacker little beyond the automatic answer, which the loop
-limits bound.<a href="#section-8.7-1" class="pilcrow">¶</a></p>
+replay gains an attacker little beyond the automatic answers it causes. Replayed to
+many Organizations, those answers all go to the original From address; the
+per-sender rate limit in <a href="#receiver-handling" class="auto internal xref">Section 4.5</a> bounds this at each
+Organization but not across them.<a href="#section-8.7-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="loops">
@@ -3015,6 +3034,15 @@ shell-execution tool within about an hour of publication.<a href="#appendix-A-5.
         <li id="appendix-A-5.6">
           <p id="appendix-A-5.6.1">The 0.16 score in the Introduction is for a single message from one
 classifier and is anecdotal.<a href="#appendix-A-5.6.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="appendix-A-5.7">
+          <p id="appendix-A-5.7.1">Three messages sent from a gmail.com account to the test business on
+2026-09-24 between 18:46 and 18:52 UTC carried DKIM signatures with
+d=gmail.com and this "h=" list:
+"content-type:to:subject:message-id:date:mime-version:from:from:to:cc:
+subject:date:message-id:reply-to:content-type" (shown wrapped). Neither
+Auto-Submitted nor any field outside this set was signed; this is the
+basis for the statement about Gmail in <a href="#reroute" class="auto internal xref">Section 5</a>.<a href="#appendix-A-5.7.1" class="pilcrow">¶</a></p>
 </li>
       </ol>
 <p id="appendix-A-6">These results come from a small number of runs with three agents on one day

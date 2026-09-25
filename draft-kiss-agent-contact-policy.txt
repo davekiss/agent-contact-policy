@@ -100,10 +100,10 @@ Table of Contents
      4.3.  Agents Sending from Their Own Mailboxes . . . . . . . . .  12
      4.4.  Agents Sending from Their Principal's Mailbox . . . . . .  12
      4.5.  Receiver Handling . . . . . . . . . . . . . . . . . . . .  13
-   5.  The Agent-Reroute Header Field  . . . . . . . . . . . . . . .  13
-     5.1.  Syntax  . . . . . . . . . . . . . . . . . . . . . . . . .  13
+   5.  The Agent-Reroute Header Field  . . . . . . . . . . . . . . .  14
+     5.1.  Syntax  . . . . . . . . . . . . . . . . . . . . . . . . .  14
      5.2.  Organization Behavior . . . . . . . . . . . . . . . . . .  14
-     5.3.  Agent Platform Behavior . . . . . . . . . . . . . . . . .  15
+     5.3.  Agent Platform Behavior . . . . . . . . . . . . . . . . .  16
      5.4.  Correlation at the Agent Contact Point  . . . . . . . . .  17
      5.5.  Visible Text  . . . . . . . . . . . . . . . . . . . . . .  17
 
@@ -114,25 +114,25 @@ Kiss                      Expires 29 March 2027                 [Page 2]
 Internet-Draft            Agent Contact Policy            September 2026
 
 
-   6.  Telephone Contact Points  . . . . . . . . . . . . . . . . . .  17
+   6.  Telephone Contact Points  . . . . . . . . . . . . . . . . . .  18
    7.  Implementation Status . . . . . . . . . . . . . . . . . . . .  18
-   8.  Security Considerations . . . . . . . . . . . . . . . . . . .  18
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .  19
      8.1.  Prompt Injection  . . . . . . . . . . . . . . . . . . . .  19
      8.2.  Spoofed Replies . . . . . . . . . . . . . . . . . . . . .  19
      8.3.  Lookalike Websites  . . . . . . . . . . . . . . . . . . .  19
-     8.4.  Suppression of Genuine Requests . . . . . . . . . . . . .  19
+     8.4.  Suppression of Genuine Requests . . . . . . . . . . . . .  20
      8.5.  Forged Labels . . . . . . . . . . . . . . . . . . . . . .  20
      8.6.  Duplicate Header Fields . . . . . . . . . . . . . . . . .  20
      8.7.  Forwarding and Replay . . . . . . . . . . . . . . . . . .  20
-     8.8.  Loops . . . . . . . . . . . . . . . . . . . . . . . . . .  20
-     8.9.  Unbounded Holds . . . . . . . . . . . . . . . . . . . . .  20
-     8.10. Abuse of Agent Contact Points . . . . . . . . . . . . . .  20
+     8.8.  Loops . . . . . . . . . . . . . . . . . . . . . . . . . .  21
+     8.9.  Unbounded Holds . . . . . . . . . . . . . . . . . . . . .  21
+     8.10. Abuse of Agent Contact Points . . . . . . . . . . . . . .  21
    9.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  21
    10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  21
      10.1.  Message Header Field . . . . . . . . . . . . . . . . . .  21
-     10.2.  Auto-Submitted Keyword . . . . . . . . . . . . . . . . .  21
+     10.2.  Auto-Submitted Keyword . . . . . . . . . . . . . . . . .  22
      10.3.  Well-Known URI . . . . . . . . . . . . . . . . . . . . .  22
-     10.4.  Link Relation  . . . . . . . . . . . . . . . . . . . . .  22
+     10.4.  Link Relation  . . . . . . . . . . . . . . . . . . . . .  23
    11. References  . . . . . . . . . . . . . . . . . . . . . . . . .  23
      11.1.  Normative References . . . . . . . . . . . . . . . . . .  23
      11.2.  Informative References . . . . . . . . . . . . . . . . .  25
@@ -652,20 +652,20 @@ Internet-Draft            Agent Contact Policy            September 2026
       application's registered domain and a "by" parameter naming a
       domain it signs for, and sign the field;
 
-   *  MUST remove, from every message it signs, any agent-submitted
-      field whose "agent" or "by" parameter is in relaxed alignment with
-      any domain it signs for, unless it set that field itself, so that
-      neither a user nor an application can forge its assertion.
+   *  MUST remove, from every message it signs with a domain shared by
+      many independent accounts (for example, a consumer webmail
+      domain), any agent-submitted field whose "agent" or "by" parameter
+      is in relaxed alignment with that domain, unless it set that field
+      itself, so that neither a user nor an application can forge its
+      assertion.
 
-   This applies to any operator that signs mail on behalf of users,
-   whether or not it asserts labels.  A provider that signs mail for
-   customers' own domains (for example, a hosted mail service) can
-   assert labels only with "by" set to the customer's domain, so a
-   receiver cannot tell its assertion from the customer's; this document
-   gives such providers no stronger mechanism.
-
-
-
+   Any other operator that signs mail with a domain shared by many
+   independent accounts, and lists Auto-Submitted in "h=", SHOULD do the
+   same.  For a domain that belongs to one customer, such as an Agent
+   Platform's own domain signed by its sending service, the domain's
+   owner is responsible for what is labelled under it, and a signer need
+   not strip anything.  A provider that signs mail for customers' own
+   domains can assert labels only with "by" set to the customer's
 
 
 
@@ -673,6 +673,11 @@ Kiss                      Expires 29 March 2027                [Page 12]
 
 Internet-Draft            Agent Contact Policy            September 2026
 
+
+   domain, so a receiver cannot tell its assertion from the customer's;
+   this document gives such providers no stronger mechanism.  Receivers
+   should bear in mind that a platform-signed label from a domain that
+   also hosts ordinary user mailboxes may have been written by a user.
 
    The Agent Platform SHOULD also add a Sender field [RFC5322] naming a
    mailbox it controls, preserving the Principal in From.  Mail signed
@@ -689,8 +694,10 @@ Internet-Draft            Agent Contact Policy            September 2026
 
    An Agent Contact Point is a Service Responder in the sense of
    [RFC3834], Section 1.1: a sender writing to it expects an automatic
-   response.  It MAY answer any Request, whatever its Auto-Submitted
-   value, except one labelled "auto-replied".
+   response.  It MAY answer any message sent to it, whatever its Auto-
+   Submitted value, except one labelled "auto-replied", notwithstanding
+   [RFC3834], Section 2, because its senders expect an automatic
+   response.
 
    On a Human Contact Point, a message with a verified agent-submitted
    label is a request that expects an answer.  The receiver MAY route it
@@ -709,17 +716,10 @@ Internet-Draft            Agent Contact Policy            September 2026
    *  MUST carry "Auto-Submitted: auto-replied";
 
    *  MUST NOT exceed five per thread in any 24-hour period, counting
-      every automatic answer the Agent Contact Point sends in the
-      thread, including answers to rerouted Requests;
+      every automatic answer the Organization sends in the thread from
+      any of its contact points, including acknowledgements and answers
+      to rerouted Requests;
 
-   *  MUST NOT be sent to a message that itself carries "auto-replied".
-
-5.  The Agent-Reroute Header Field
-
-5.1.  Syntax
-
-   agent-reroute = "Agent-Reroute:" [CFWS] "<" URI ">"
-                   *( [CFWS] ";" [CFWS] parameter ) [CFWS] CRLF
 
 
 
@@ -729,6 +729,19 @@ Kiss                      Expires 29 March 2027                [Page 13]
 
 Internet-Draft            Agent Contact Policy            September 2026
 
+
+   *  SHOULD be rate-limited per sender address across threads, so that
+      replayed or forged Requests cannot turn the Organization into a
+      source of unwanted mail;
+
+   *  MUST NOT be sent to a message that itself carries "auto-replied".
+
+5.  The Agent-Reroute Header Field
+
+5.1.  Syntax
+
+   agent-reroute = "Agent-Reroute:" [CFWS] "<" URI ">"
+                   *( [CFWS] ";" [CFWS] parameter ) [CFWS] CRLF
 
    "URI" is as defined in [RFC3986] and MUST be a "mailto:" or "https:"
    URI.  "CFWS" is as defined in [RFC5322], and "parameter" is as
@@ -765,19 +778,6 @@ Internet-Draft            Agent Contact Policy            September 2026
    *  MUST be sent in the same thread (with In-Reply-To and References
       fields identifying the original message), to the address in the
       From field of the original message and not to its Reply-To
-      address, and MUST NOT be sent if From contains more than one
-      mailbox.  A reply from a Human Contact Point is a Personal or
-      Group Responder's in the terms of [RFC3834], and Section 4 of that
-      document says such responses SHOULD go to the Return-Path address.
-      This document departs from that deliberately: the Return-Path of
-      agent mail is often a bounce address that the Agent never reads,
-      while Agents watch the mailbox they sent from;
-
-   *  MUST be sent from the address to which the original message was
-      sent;
-
-
-
 
 
 
@@ -785,6 +785,18 @@ Kiss                      Expires 29 March 2027                [Page 14]
 
 Internet-Draft            Agent Contact Policy            September 2026
 
+
+      address, and MUST NOT be sent if From contains more than one
+      mailbox.  A reply from a Human Contact Point is a response from a
+      Personal or Group Responder in the terms of [RFC3834], and
+      Section 4 of that document says such responses SHOULD go to the
+      Return-Path address.  This document departs from that
+      deliberately: the Return-Path of agent mail is often a bounce
+      address that the Agent never reads, while Agents watch the mailbox
+      they sent from;
+
+   *  MUST be sent from the address to which the original message was
+      sent;
 
    *  MUST have an Aligned DKIM Pass for the domain of its From field
       from a signature whose "h=" tag lists the Agent-Reroute field,
@@ -817,6 +829,19 @@ Internet-Draft            Agent Contact Policy            September 2026
    addressed to the Principal rather than to the Agent (see
    Section 5.5).
 
+
+
+
+
+
+
+
+
+Kiss                      Expires 29 March 2027                [Page 15]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    An Organization MAY delay delivery of the original message to its
    staff so that a Reroute can arrive first.  The delay MUST end no
    later than "expires", which MUST be no more than one hour after the
@@ -832,15 +857,6 @@ Internet-Draft            Agent Contact Policy            September 2026
    the following hold:
 
    1.  the reply is in the same thread as the Agent's message;
-
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 15]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
    2.  the reply's From address equals the address the Agent's message
        was sent to, and the reply has an Aligned DKIM Pass for its
@@ -875,6 +891,13 @@ Internet-Draft            Agent Contact Policy            September 2026
       end of the subject or by a character that cannot appear in a
       Reference;
 
+
+
+Kiss                      Expires 29 March 2027                [Page 16]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    *  MUST NOT follow a further Agent-Reroute received in response to
       the rerouted Request;
 
@@ -883,20 +906,6 @@ Internet-Draft            Agent Contact Policy            September 2026
    An Agent Platform MUST NOT treat text in a message body as equivalent
    to Agent-Reroute.  Visible text may inform the Principal; it never
    authorizes an action.
-
-
-
-
-
-
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 16]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
 5.4.  Correlation at the Agent Contact Point
 
@@ -928,6 +937,23 @@ Internet-Draft            Agent Contact Policy            September 2026
  agent line replies right away from our published information and passes
  anything it can't answer to staff.
 
+   The visible notice carries no expiry, but the Reroute stops being
+   useful once the original has been delivered to staff; the notice
+   SHOULD say so (for example, "within the next hour") so that a
+   Principal who reads it later does not resend a Request staff already
+   have.
+
+
+
+
+
+
+
+Kiss                      Expires 29 March 2027                [Page 17]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    Wording addressed to "AI assistants" rather than to the Principal was
    treated by one Agent as an unverified instruction and declined.
    Because the same reply is sent to every first-time sender, a notice
@@ -946,14 +972,6 @@ Internet-Draft            Agent Contact Policy            September 2026
    Organization controls, so an Agent holding only a phone number cannot
    find the policy.  ENUM [RFC6116] defines such a mapping in the DNS
    but is not widely deployed for this purpose.  A voice greeting may
-
-
-
-Kiss                      Expires 29 March 2027                [Page 17]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
-
    state the agent number to the caller.  Business listing platforms,
    from which Agents commonly obtain phone numbers, are the likely
    registry; defining a listing field is out of scope.
@@ -982,6 +1000,16 @@ Internet-Draft            Agent Contact Policy            September 2026
       Reroute field even once it sends one.
 
    Test garage:  A public test business at https://davekiss.com/test-
+
+
+
+
+
+Kiss                      Expires 29 March 2027                [Page 18]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
       garage, with a Human Contact Point and an Agent Contact Point at
       garage.davekiss.com.  It serves "/llms.txt", an A2A Agent Card at
       "/.well-known/agent-card.json" and an MCP endpoint at "/mcp" on
@@ -996,19 +1024,6 @@ Internet-Draft            Agent Contact Policy            September 2026
       credential header.
 
 8.  Security Considerations
-
-
-
-
-
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 18]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
 8.1.  Prompt Injection
 
@@ -1040,6 +1055,17 @@ Internet-Draft            Agent Contact Policy            September 2026
    Principal's own link to the Organization's website, or a listing the
    Organization manages, reduce this risk.
 
+
+
+
+
+
+
+Kiss                      Expires 29 March 2027                [Page 19]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
 8.4.  Suppression of Genuine Requests
 
    An attacker who can make an Agent Contact Point believe that a
@@ -1051,20 +1077,6 @@ Internet-Draft            Agent Contact Policy            September 2026
    SHOULD also rate-limit failed Reference lookups.  Because a resent
    Request may differ from the original, Agent Contact Points SHOULD let
    staff see both.
-
-
-
-
-
-
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 19]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
 8.5.  Forged Labels
 
@@ -1092,7 +1104,23 @@ Internet-Draft            Agent Contact Policy            September 2026
    message can also be replayed to other recipients with its signature
    intact; since a verified label never withholds mail from staff and
    only changes how an Organization answers, replay gains an attacker
-   little beyond the automatic answer, which the loop limits bound.
+   little beyond the automatic answers it causes.  Replayed to many
+   Organizations, those answers all go to the original From address; the
+   per-sender rate limit in Section 4.5 bounds this at each Organization
+   but not across them.
+
+
+
+
+
+
+
+
+
+Kiss                      Expires 29 March 2027                [Page 20]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
 
 8.8.  Loops
 
@@ -1114,13 +1142,6 @@ Internet-Draft            Agent Contact Policy            September 2026
    rate limits and abuse handling from the outset; in the experiment, an
    unrelated client probed a newly published agent endpoint for command-
    execution tools within about an hour.
-
-
-
-Kiss                      Expires 29 March 2027                [Page 20]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
 9.  Privacy Considerations
 
@@ -1149,6 +1170,14 @@ Internet-Draft            Agent Contact Policy            September 2026
 
    Applicable protocol:  mail
 
+
+
+
+Kiss                      Expires 29 March 2027                [Page 21]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    Status:  experimental
 
    Author/Change controller:  IETF
@@ -1169,14 +1198,6 @@ Internet-Draft            Agent Contact Policy            September 2026
    need to be appointed.
 
    Keyword value:  agent-submitted
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 21]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
    Description:  Indicates that a message was composed by a software
       agent acting on behalf of a person, and that it is a request that
@@ -1205,6 +1226,14 @@ Internet-Draft            Agent Contact Policy            September 2026
 
    URI suffix:  agent-contact-policy
 
+
+
+
+Kiss                      Expires 29 March 2027                [Page 22]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    Change controller:  IETF
 
    Specification document(s):  this document (Section 3)
@@ -1225,14 +1254,6 @@ Internet-Draft            Agent Contact Policy            September 2026
       people and which are intended for automated agents.
 
    Reference:  this document (Section 3)
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 22]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
 11.  References
 
@@ -1262,6 +1283,13 @@ Internet-Draft            Agent Contact Policy            September 2026
               Timestamps", RFC 3339, DOI 10.17487/RFC3339, July 2002,
               <https://www.rfc-editor.org/rfc/rfc3339>.
 
+
+
+Kiss                      Expires 29 March 2027                [Page 23]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    [RFC3834]  Moore, K., "Recommendations for Automatic Responses to
               Electronic Mail", RFC 3834, DOI 10.17487/RFC3834, August
               2004, <https://www.rfc-editor.org/rfc/rfc3834>.
@@ -1279,16 +1307,6 @@ Internet-Draft            Agent Contact Policy            September 2026
               Resource Identifier (URI): Generic Syntax", STD 66,
               RFC 3986, DOI 10.17487/RFC3986, January 2005,
               <https://www.rfc-editor.org/rfc/rfc3986>.
-
-
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 23]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
    [RFC4086]  Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
@@ -1321,6 +1339,13 @@ Internet-Draft            Agent Contact Policy            September 2026
               URI Scheme", RFC 6068, DOI 10.17487/RFC6068, October 2010,
               <https://www.rfc-editor.org/rfc/rfc6068>.
 
+
+
+Kiss                      Expires 29 March 2027                [Page 24]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    [RFC6376]  Crocker, D., Ed., Hansen, T., Ed., and M. Kucherawy, Ed.,
               "DomainKeys Identified Mail (DKIM) Signatures", STD 76,
               RFC 6376, DOI 10.17487/RFC6376, September 2011,
@@ -1338,13 +1363,6 @@ Internet-Draft            Agent Contact Policy            September 2026
    [RFC8288]  Nottingham, M., "Web Linking", RFC 8288,
               DOI 10.17487/RFC8288, October 2017,
               <https://www.rfc-editor.org/rfc/rfc8288>.
-
-
-
-Kiss                      Expires 29 March 2027                [Page 24]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
    [RFC8601]  Kucherawy, M., "Message Header Field for Indicating
               Message Authentication Status", RFC 8601,
@@ -1375,6 +1393,15 @@ Internet-Draft            Agent Contact Policy            September 2026
    [A2A]      "Agent2Agent (A2A) Protocol: Agent Discovery", n.d.,
               <https://a2a-protocol.org/latest/topics/agent-discovery/>.
 
+
+
+
+
+Kiss                      Expires 29 March 2027                [Page 25]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    [I-D.ietf-dkim-dkim2-spec]
               Clayton, R., Chuang, W., and B. Gondwana, "DomainKeys
               Identified Mail Signatures v2 (DKIM2)", Work in Progress,
@@ -1394,13 +1421,6 @@ Internet-Draft            Agent Contact Policy            September 2026
               draft-ietf-webbotauth-httpsig-protocol-00, 1 September
               2026, <https://datatracker.ietf.org/doc/html/draft-ietf-
               webbotauth-httpsig-protocol-00>.
-
-
-
-Kiss                      Expires 29 March 2027                [Page 25]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
    [I-D.mozleywilliams-dnsop-dnsaid]
               Mozley, J., Williams, N., Sarikaya, B., Schott, R., and J.
@@ -1426,6 +1446,18 @@ Internet-Draft            Agent Contact Policy            September 2026
               <https://modelcontextprotocol.io/
               specification/2025-11-25>.
 
+
+
+
+
+
+
+
+Kiss                      Expires 29 March 2027                [Page 26]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
               A., Peterson, J., Sparks, R., Handley, M., and E.
               Schooler, "SIP: Session Initiation Protocol", RFC 3261,
@@ -1447,16 +1479,6 @@ Internet-Draft            Agent Contact Policy            September 2026
               Kucherawy, Ed., "The Authenticated Received Chain (ARC)
               Protocol", RFC 8617, DOI 10.17487/RFC8617, July 2019,
               <https://www.rfc-editor.org/rfc/rfc8617>.
-
-
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 26]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
    [RFC9057]  Crocker, D., "Email Author Header Field", RFC 9057,
               DOI 10.17487/RFC9057, June 2021,
@@ -1484,6 +1506,14 @@ Appendix A.  Experiment
    Instinct and Meta Muse) were each asked to email the business about a
    service, with the address given in the prompt.  Each first-time email
    received the same short acknowledgement ("we got your message, a
+
+
+
+Kiss                      Expires 29 March 2027                [Page 27]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    person will reply"), with the Agent Contact Point carried differently
    in each run; in the last row, the acknowledgement also included a
    short notice.  Each cell is one run.  Runs with the same agent were
@@ -1495,24 +1525,6 @@ Appendix A.  Experiment
    acknowledgement.  For the runs below, the test business was changed
    to acknowledge Instinct's mail anyway, contrary to that field and to
    [RFC3834], Section 2.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 27]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
 
     +==========================+=============+==============+=========+
     | Agent Contact Point      | Grok Bot    | Instinct     | Muse    |
@@ -1550,6 +1562,14 @@ Internet-Draft            Agent Contact Policy            September 2026
        which that agent noticed; with a third-party Agent Contact Point
        the reaction may differ.
 
+
+
+
+Kiss                      Expires 29 March 2027                [Page 28]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
    3.  Two agents sent from the Principal's own mailbox through the
        mailbox provider's API, with nothing else in the message
        indicating automation.  One agent (Instinct) sent from its own
@@ -1561,15 +1581,6 @@ Internet-Draft            Agent Contact Policy            September 2026
        to be adding mailboxes of the Agents' own, which would allow the
        platform-signed labelling in Section 4.
 
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 28]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
-
    4.  When a notice named a new per-request address, one agent held a
        second Reroute because the Principal's earlier approval covered a
        different address.  This motivates the stable-address
@@ -1580,6 +1591,14 @@ Internet-Draft            Agent Contact Policy            September 2026
 
    6.  The 0.16 score in the Introduction is for a single message from
        one classifier and is anecdotal.
+
+   7.  Three messages sent from a gmail.com account to the test business
+       on 2026-09-24 between 18:46 and 18:52 UTC carried DKIM signatures
+       with d=gmail.com and this "h=" list: "content-
+       type:to:subject:message-id:date:mime-version:from:from:to:cc:
+       subject:date:message-id:reply-to:content-type" (shown wrapped).
+       Neither Auto-Submitted nor any field outside this set was signed;
+       this is the basis for the statement about Gmail in Section 5.
 
    These results come from a small number of runs with three agents on
    one day and should be read as directional.
@@ -1599,6 +1618,14 @@ Appendix B.  Relationship to Existing Work
       Policy can point to either.
 
    security.txt:  [RFC9116] publishes a site's security contact points
+
+
+
+Kiss                      Expires 29 March 2027                [Page 29]
+
+Internet-Draft            Agent Contact Policy            September 2026
+
+
       in a well-known file.  The Agent Contact Policy follows the same
       pattern for a different audience.
 
@@ -1616,16 +1643,6 @@ Appendix B.  Relationship to Existing Work
       decision with the Principal.
 
    The Author header field:  [RFC9057] names the author of a message's
-
-
-
-
-
-Kiss                      Expires 29 March 2027                [Page 29]
-
-Internet-Draft            Agent Contact Policy            September 2026
-
-
       content, chiefly so that the original author survives when a
       mediator such as a mailing list rewrites From, and requires that
       an Author field created by the author's software be identical to
@@ -1642,23 +1659,6 @@ Author's Address
    Dave Kiss
    Independent
    Email: dave@davekiss.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
