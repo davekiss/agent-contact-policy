@@ -17,8 +17,10 @@ content of a message.
    as meant for people, and names the contact points meant for agents: an
    agent email address, an agent phone number, an A2A Agent Card or an MCP
    endpoint.
-2. **`Auto-Submitted: auto-generated; agent=<platform>`.** A label an agent
-   platform puts on the email it sends, verified by an aligned DKIM signature.
+2. **`Auto-Submitted: agent-submitted; agent=<platform>`.** A label on email
+   an agent composes, verified by an aligned DKIM signature: the agent
+   platform's own when the agent has its own mailbox, or the mailbox
+   provider's (`by=`) when the agent sends from its person's mailbox.
 3. **`Agent-Reroute`.** A header a business puts in its reply when an agent
    skipped the policy, plus the conditions under which an agent platform may
    act on it. Agents never reroute without their person's approval or a
