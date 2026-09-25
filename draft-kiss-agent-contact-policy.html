@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>Agent Contact Policy: Directing Automated Agents Away from Human Contact Channels</title>
+<title>Agent Contact Policy: Routing Automated Agents to Designated Contact Points</title>
 <meta content="Dave Kiss" name="author">
 <meta content="
        Software agents acting on behalf of people (&quot;AI agents&quot;) increasingly send
@@ -14,12 +14,12 @@ from the people they act for, and the agents cannot tell which contact point
 the organization would prefer them to use. This document defines three
 mechanisms that let the two sides cooperate without inspecting message
 content: an Agent Contact Policy that an organization publishes to name the
-contact points meant for agents; an Auto-Submitted parameter with which an
-agent identifies its email as agent-sent; and an Agent-Reroute header field
-with which an organization, replying in a thread, points an agent to its
-agent contact point. The trust model throughout is that whoever controls a
-contact address decides where agents should go, and an agent follows such a
-direction only with its principal's consent. 
+contact points meant for agents; an Auto-Submitted keyword with which email
+composed by an agent is labelled as such, verifiably; and an Agent-Reroute
+header field with which an organization, replying in a thread, points an
+agent to its agent contact point. The trust model throughout is that whoever
+controls a contact address decides where agents should go, and an agent
+follows such a direction only with its principal's consent. 
     " name="description">
 <meta content="xml2rfc 3.34.1" name="generator">
 <meta content="AI agents" name="keyword">
@@ -1271,7 +1271,7 @@ li > p:last-of-type:only-child {
 </dd>
 </dl>
 </div>
-<h1 id="title">Agent Contact Policy: Directing Automated Agents Away from Human Contact Channels</h1>
+<h1 id="title">Agent Contact Policy: Routing Automated Agents to Designated Contact Points</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">Software agents acting on behalf of people ("AI agents") increasingly send
@@ -1281,12 +1281,22 @@ from the people they act for, and the agents cannot tell which contact point
 the organization would prefer them to use. This document defines three
 mechanisms that let the two sides cooperate without inspecting message
 content: an Agent Contact Policy that an organization publishes to name the
-contact points meant for agents; an Auto-Submitted parameter with which an
-agent identifies its email as agent-sent; and an Agent-Reroute header field
-with which an organization, replying in a thread, points an agent to its
-agent contact point. The trust model throughout is that whoever controls a
-contact address decides where agents should go, and an agent follows such a
-direction only with its principal's consent.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+contact points meant for agents; an Auto-Submitted keyword with which email
+composed by an agent is labelled as such, verifiably; and an Agent-Reroute
+header field with which an organization, replying in a thread, points an
+agent to its agent contact point. The trust model throughout is that whoever
+controls a contact address decides where agents should go, and an agent
+follows such a direction only with its principal's consent.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-about-this-document">
+<a href="#name-about-this-document" class="section-name selfRef">About This Document</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-kiss-agent-contact-policy/">https://datatracker.ietf.org/doc/draft-kiss-agent-contact-policy/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/davekiss/agent-contact-policy">https://github.com/davekiss/agent-contact-policy</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1360,21 +1370,39 @@ direction only with its principal's consent.<a href="#section-abstract-1" class=
                 <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-document-format" class="internal xref">Document Format</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
-                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-discovery" class="internal xref">Discovery</a></p>
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-choosing-an-agent-contact-p" class="internal xref">Choosing an Agent Contact Point</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
-                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-agent-processing" class="internal xref">Agent Processing</a></p>
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-retrieval" class="internal xref">Retrieval</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4">
+                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-discovery" class="internal xref">Discovery</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5">
+                <p id="section-toc.1-1.3.2.5.1"><a href="#section-3.5" class="auto internal xref">3.5</a>.  <a href="#name-authority" class="internal xref">Authority</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.6">
+                <p id="section-toc.1-1.3.2.6.1"><a href="#section-3.6" class="auto internal xref">3.6</a>.  <a href="#name-agent-processing" class="internal xref">Agent Processing</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-identifying-agent-sent-emai" class="internal xref">Identifying Agent-Sent Email</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-identifying-agent-composed-" class="internal xref">Identifying Agent-Composed Email</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
-                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-the-agent-parameter" class="internal xref">The "agent" Parameter</a></p>
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-the-agent-submitted-keyword" class="internal xref">The agent-submitted Keyword</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
-                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-receiver-handling" class="internal xref">Receiver Handling</a></p>
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-verifying-the-label" class="internal xref">Verifying the Label</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-agents-sending-from-their-o" class="internal xref">Agents Sending from Their Own Mailboxes</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-agents-sending-from-their-p" class="internal xref">Agents Sending from Their Principal's Mailbox</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-receiver-handling" class="internal xref">Receiver Handling</a></p>
 </li>
             </ul>
 </li>
@@ -1402,50 +1430,73 @@ direction only with its principal's consent.<a href="#section-abstract-1" class=
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-telephone-contact-points" class="internal xref">Telephone Contact Points</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-implementation-status" class="internal xref">Implementation Status</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
-</li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
-                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-message-header-field" class="internal xref">Message Header Field</a></p>
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-prompt-injection" class="internal xref">Prompt Injection</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
-                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-well-known-uri" class="internal xref">Well-Known URI</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-spoofed-replies" class="internal xref">Spoofed Replies</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
-                <p id="section-toc.1-1.9.2.3.1"><a href="#section-9.3" class="auto internal xref">9.3</a>.  <a href="#name-link-relation" class="internal xref">Link Relation</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.3">
+                <p id="section-toc.1-1.8.2.3.1"><a href="#section-8.3" class="auto internal xref">8.3</a>.  <a href="#name-suppression-of-genuine-requ" class="internal xref">Suppression of Genuine Requests</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4">
-                <p id="section-toc.1-1.9.2.4.1"><a href="#section-9.4" class="auto internal xref">9.4</a>.  <a href="#name-auto-submitted-parameter" class="internal xref">Auto-Submitted Parameter</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.4">
+                <p id="section-toc.1-1.8.2.4.1"><a href="#section-8.4" class="auto internal xref">8.4</a>.  <a href="#name-forged-labels" class="internal xref">Forged Labels</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.5">
+                <p id="section-toc.1-1.8.2.5.1"><a href="#section-8.5" class="auto internal xref">8.5</a>.  <a href="#name-loops" class="internal xref">Loops</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.6">
+                <p id="section-toc.1-1.8.2.6.1"><a href="#section-8.6" class="auto internal xref">8.6</a>.  <a href="#name-abuse-of-agent-contact-poin" class="internal xref">Abuse of Agent Contact Points</a></p>
 </li>
             </ul>
 </li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
+</li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-references" class="internal xref">References</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
-                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-message-header-field" class="internal xref">Message Header Field</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
-                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-auto-submitted-keyword" class="internal xref">Auto-Submitted Keyword</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
+                <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-well-known-uri" class="internal xref">Well-Known URI</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.4">
+                <p id="section-toc.1-1.10.2.4.1"><a href="#section-10.4" class="auto internal xref">10.4</a>.  <a href="#name-link-relation" class="internal xref">Link Relation</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-experiment" class="internal xref">Experiment</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
-            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-relationship-to-existing-wo" class="internal xref">Relationship to Existing Work</a></p>
+            <p id="section-toc.1-1.12.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-experiment" class="internal xref">Experiment</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
-            <p id="section-toc.1-1.13.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+            <p id="section-toc.1-1.13.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-relationship-to-existing-wo" class="internal xref">Relationship to Existing Work</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
-            <p id="section-toc.1-1.14.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.14.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1474,10 +1525,11 @@ rely on it.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">Second, agents are rightly designed not to act on instructions found in the
 content they read. A message saying "send this somewhere else instead" is
 indistinguishable from a phishing or prompt-injection attempt, and every agent
-tested treated it as data, not as an instruction. Any mechanism that routes
-agents must therefore be declared by a party the agent can verify, and must
-leave the decision to act with the agent's principal or with a permission the
-principal granted in advance.<a href="#section-1-3" class="pilcrow">¶</a></p>
+tested treated such text as information for its principal, not as an
+instruction to follow. Any mechanism that routes agents must therefore be
+declared by a party the agent can verify, and must leave the decision to act
+with the agent's principal or with a permission the principal granted in
+advance.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">This document defines:<a href="#section-1-4" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-1-5">
 <li id="section-1-5.1">
@@ -1486,9 +1538,10 @@ by the controller of a contact address, that marks contact points as
 intended for people and names the contact points intended for agents.<a href="#section-1-5.1.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-1-5.2">
-          <p id="section-1-5.2.1">An <strong>agent parameter</strong> for the Auto-Submitted header field (<a href="#identify" class="auto internal xref">Section 4</a>)
-with which an agent labels email it sends, aligned with a DKIM signature so
-that the label can be verified.<a href="#section-1-5.2.1" class="pilcrow">¶</a></p>
+          <p id="section-1-5.2.1">The <strong>agent-submitted keyword</strong> for the Auto-Submitted header field
+(<a href="#identify" class="auto internal xref">Section 4</a>), with which email composed by an agent is labelled, and a
+way to verify the label whether the agent sends from its own domain or
+from its principal's mailbox.<a href="#section-1-5.2.1" class="pilcrow">¶</a></p>
 </li>
         <li id="section-1-5.3">
           <p id="section-1-5.3.1">The <strong>Agent-Reroute header field</strong> (<a href="#reroute" class="auto internal xref">Section 5</a>), which an organization
@@ -1497,6 +1550,11 @@ organization's agent contact point, together with the conditions under
 which an agent may act on it.<a href="#section-1-5.3.1" class="pilcrow">¶</a></p>
 </li>
       </ol>
+<p id="section-1-6">The three mechanisms are independent: each is useful without the others, and
+they touch different communities (web publication and discovery; email
+labelling; email replies). They are presented together here because they
+were designed and tested together. The author expects that they may be split
+into separate documents if the work is taken up.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <div id="goals-and-non-goals">
 <section id="section-1.1">
         <h3 id="name-goals-and-non-goals">
@@ -1509,8 +1567,9 @@ new recipient with the agent's principal.<a href="#section-1.1-1" class="pilcrow
 <p id="section-1.1-2">It is not a goal to block agents. The person behind an agent is usually a
 genuine customer. It is also not a goal to detect agents from the content or
 style of their messages; nothing in this document depends on such detection.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
-<p id="section-1.1-3">This document covers email in detail. Phone numbers are discussed in
-<a href="#phone" class="auto internal xref">Section 6</a>; a comparable mechanism for voice calls is left for future work.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
+<p id="section-1.1-3">This document covers email in detail. The Agent Contact Policy also lists
+telephone and protocol endpoints (<a href="#phone" class="auto internal xref">Section 6</a>); a mechanism comparable to
+Agent-Reroute for voice calls is left for future work.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="requirements-language">
@@ -1548,37 +1607,45 @@ are addressed to the Agent Platform's software, not to a language model's
 judgment.<a href="#section-1.3-1.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.3-1.7">Organization:</dt>
+<dt id="section-1.3-1.7">Mailbox Provider:</dt>
           <dd style="margin-left: 1.5em" id="section-1.3-1.8">
-            <p id="section-1.3-1.8.1">The recipient of an Agent's contact, such as a business.<a href="#section-1.3-1.8.1" class="pilcrow">¶</a></p>
+            <p id="section-1.3-1.8.1">The operator of a mailbox that an Agent Platform uses, on a Principal's
+authorization, to send mail as that Principal (for example, through an
+API).<a href="#section-1.3-1.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.3-1.9">Human Contact Point:</dt>
+<dt id="section-1.3-1.9">Organization:</dt>
           <dd style="margin-left: 1.5em" id="section-1.3-1.10">
-            <p id="section-1.3-1.10.1">A contact point (email address, telephone number, web form) that the
-Organization intends for people.<a href="#section-1.3-1.10.1" class="pilcrow">¶</a></p>
+            <p id="section-1.3-1.10.1">The recipient of an Agent's contact, such as a business.<a href="#section-1.3-1.10.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.3-1.11">Agent Contact Point:</dt>
+<dt id="section-1.3-1.11">Human Contact Point:</dt>
           <dd style="margin-left: 1.5em" id="section-1.3-1.12">
-            <p id="section-1.3-1.12.1">A contact point that the Organization intends for Agents. It is typically
-answered automatically from information the Organization has published,
-with anything it cannot answer passed to staff.<a href="#section-1.3-1.12.1" class="pilcrow">¶</a></p>
+            <p id="section-1.3-1.12.1">A contact point (email address, telephone number, web form) that the
+Organization intends for people.<a href="#section-1.3-1.12.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.3-1.13">Reroute:</dt>
+<dt id="section-1.3-1.13">Agent Contact Point:</dt>
           <dd style="margin-left: 1.5em" id="section-1.3-1.14">
-            <p id="section-1.3-1.14.1">An Agent's resending of a request, originally sent to a Human Contact Point,
-to an Agent Contact Point.<a href="#section-1.3-1.14.1" class="pilcrow">¶</a></p>
+            <p id="section-1.3-1.14.1">A contact point that the Organization intends for Agents. It is typically
+answered automatically from information the Organization has published,
+with anything it cannot answer passed to staff.<a href="#section-1.3-1.14.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.3-1.15">Reference:</dt>
+<dt id="section-1.3-1.15">Reroute:</dt>
           <dd style="margin-left: 1.5em" id="section-1.3-1.16">
-            <p id="section-1.3-1.16.1">An opaque token the Organization assigns to a request received on a Human
-Contact Point so that a Reroute can be correlated with it.<a href="#section-1.3-1.16.1" class="pilcrow">¶</a></p>
+            <p id="section-1.3-1.16.1">An Agent's resending of a request, originally sent to a Human Contact Point,
+to an Agent Contact Point.<a href="#section-1.3-1.16.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.3-1.17">Reference:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.3-1.18">
+            <p id="section-1.3-1.18.1">An unguessable token the Organization assigns to a request received on a
+Human Contact Point so that a Reroute can be correlated with it.<a href="#section-1.3-1.18.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
+<p id="section-1.3-2">The ABNF in this document uses the notation of <span>[<a href="#RFC5234" class="cite xref">RFC5234</a>]</span>.<a href="#section-1.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1597,30 +1664,37 @@ offers its Principal the Agent Contact Point instead (<a href="#policy" class="a
 </li>
         <li class="normal" id="section-2-2.2">
           <p id="section-2-2.2.1"><strong>At contact</strong>, an Agent labels its email as agent-sent (<a href="#identify" class="auto internal xref">Section 4</a>). An
-Organization receiving labelled email can route it to its Agent Contact
-Point with certainty.<a href="#section-2-2.2.1" class="pilcrow">¶</a></p>
+Organization receiving mail with a verified label can route it to its Agent
+Contact Point with certainty.<a href="#section-2-2.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-2-2.3">
           <p id="section-2-2.3.1"><strong>After contact</strong>, if an unlabelled request reached a Human Contact Point,
 the Organization replies once, in the thread, with an Agent-Reroute field
-(<a href="#reroute" class="auto internal xref">Section 5</a>); the Agent's Platform verifies it against the Organization's
-published policy and offers the Reroute to its Principal.<a href="#section-2-2.3.1" class="pilcrow">¶</a></p>
+(<a href="#reroute" class="auto internal xref">Section 5</a>); the Agent's Platform verifies it and offers the Reroute to
+its Principal.<a href="#section-2-2.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="section-2-3">The trust model is the one already used for delegating mail handling across
 domains (MX records, SPF, DMARC reporting): the party that controls an address
 may say where traffic for it should go, and that statement is trusted because
-only that party can make it. For a domain the Organization controls, the
-statement is published under that domain. For an address at a shared mailbox
-provider (for example, an address at a consumer webmail domain), the
-Organization cannot publish under the domain; the statement is instead made
-by the mailbox itself, in an authenticated reply, and corroborated by a
-policy published at a location the Organization controls, such as its
-website.<a href="#section-2-3" class="pilcrow">¶</a></p>
-<p id="section-2-4">The destination's domain does not matter; its verifiability does. An Agent
+only that party can make it.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4">For an address at a domain the Organization controls, the statement is a
+policy published under that domain, and an Agent can verify it before any
+contact.<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">For an address at a shared Mailbox Provider (for example, an address at a
+consumer webmail domain), the Organization cannot publish under the domain.
+Two weaker forms of evidence remain. The Organization's own website can list
+the address together with a policy; this binds the address to the policy only
+as strongly as the website is bound to the Organization. Failing that, the
+only evidence is an authenticated reply from the address itself
+(<a href="#reroute" class="auto internal xref">Section 5</a>). Such a reply proves that whoever controls the mailbox chose
+the destination, which is the party the Agent was trying to reach in the
+first place; it proves nothing about who that party is. Agent Platforms
+<span class="bcp14">SHOULD</span> present these cases to the Principal accordingly.<a href="#section-2-5" class="pilcrow">¶</a></p>
+<p id="section-2-6">The destination's domain does not matter; its verifiability does. An Agent
 Contact Point is commonly operated by a service provider on a different
 domain, just as mail for a domain is commonly handled by a provider on
-another.<a href="#section-2-4" class="pilcrow">¶</a></p>
+another.<a href="#section-2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="policy">
@@ -1649,17 +1723,26 @@ members:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <dt id="section-3.1-2.5">human_contacts:</dt>
           <dd style="margin-left: 1.5em" id="section-3.1-2.6">
             <p id="section-3.1-2.6.1"><span class="bcp14">REQUIRED</span>. An array of URIs <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span> identifying Human Contact Points,
-such as "mailto:" <span>[<a href="#RFC6068" class="cite xref">RFC6068</a>]</span> and "tel:" URIs. An Agent that has not been
-directed by its Principal to use one of these exact contact points <span class="bcp14">SHOULD</span>
-prefer an Agent Contact Point (<a href="#agent-processing" class="auto internal xref">Section 3.3</a>).<a href="#section-3.1-2.6.1" class="pilcrow">¶</a></p>
+such as "mailto:" <span>[<a href="#RFC6068" class="cite xref">RFC6068</a>]</span> and "tel:" URIs and "https:" URIs of web
+forms.<a href="#section-3.1-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 <dt id="section-3.1-2.7">agent_contacts:</dt>
           <dd style="margin-left: 1.5em" id="section-3.1-2.8">
-            <p id="section-3.1-2.8.1"><span class="bcp14">REQUIRED</span>. A non-empty array of objects, each with a "uri" member (a
-"mailto:", "tel:" or "https:" URI) and an optional "protocol" member naming
-how the contact point is used (for example "email", "voice", "a2a" for an
-A2A Agent Card <span>[<a href="#A2A" class="cite xref">A2A</a>]</span>, or "mcp").<a href="#section-3.1-2.8.1" class="pilcrow">¶</a></p>
+            <p id="section-3.1-2.8.1"><span class="bcp14">REQUIRED</span>. A non-empty array of Agent Contact Point objects, each with:<a href="#section-3.1-2.8.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-2.8.2.1">
+                <p id="section-3.1-2.8.2.1.1">"uri" (<span class="bcp14">REQUIRED</span>): a "mailto:", "tel:" or "https:" URI;<a href="#section-3.1-2.8.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-3.1-2.8.2.2">
+                <p id="section-3.1-2.8.2.2.1">"protocol" (<span class="bcp14">OPTIONAL</span>): how the contact point is used, for example
+"email", "voice", "a2a" for an A2A Agent Card <span>[<a href="#A2A" class="cite xref">A2A</a>]</span>, or "mcp";<a href="#section-3.1-2.8.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-3.1-2.8.2.3">
+                <p id="section-3.1-2.8.2.3.1">"for" (<span class="bcp14">OPTIONAL</span>): an array of URIs from "human_contacts" that this Agent
+Contact Point serves. If absent, it serves all of them.<a href="#section-3.1-2.8.2.3.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
 </dd>
           <dd class="break"></dd>
 <dt id="section-3.1-2.9">expires:</dt>
@@ -1669,7 +1752,10 @@ refetched.<a href="#section-3.1-2.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-3.1-3">Unknown members <span class="bcp14">MUST</span> be ignored.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">Unknown members <span class="bcp14">MUST</span> be ignored. An Organization with several locations <span class="bcp14">MAY</span>
+describe them in one policy, using "for" to pair each location's Human
+Contact Points with its Agent Contact Points, or <span class="bcp14">MAY</span> publish one policy per
+location website.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-3.1-4">
 <pre>
 {
@@ -1691,69 +1777,115 @@ refetched.<a href="#section-3.1-2.10.1" class="pilcrow">¶</a></p>
 </div>
 </section>
 </div>
-<div id="discovery">
+<div id="choosing-an-agent-contact-point">
 <section id="section-3.2">
-        <h3 id="name-discovery">
-<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-discovery" class="section-name selfRef">Discovery</a>
+        <h3 id="name-choosing-an-agent-contact-p">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-choosing-an-agent-contact-p" class="section-name selfRef">Choosing an Agent Contact Point</a>
         </h3>
-<p id="section-3.2-1">An Agent Contact Policy is discovered in one or more of the following ways.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-3.2-2">
-          <dt id="section-3.2-2.1">Well-known URI:</dt>
-          <dd style="margin-left: 1.5em" id="section-3.2-2.2">
-            <p id="section-3.2-2.2.1">At "/.well-known/agent-contact-policy" <span>[<a href="#RFC8615" class="cite xref">RFC8615</a>]</span> under the domain of an
+<p id="section-3.2-1">To find the Agent Contact Point corresponding to a Human Contact Point, an
+Agent considers the entries of "agent_contacts" that serve that Human Contact
+Point and prefers, in order: an entry of the same kind as the Human Contact
+Point ("mailto:" for "mailto:", "tel:" for "tel:"); an entry whose protocol
+the Agent supports; any other entry.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="retrieval">
+<section id="section-3.3">
+        <h3 id="name-retrieval">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-retrieval" class="section-name selfRef">Retrieval</a>
+        </h3>
+<p id="section-3.3-1">A policy is retrieved with an HTTP GET over HTTPS <span>[<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>; other schemes
+<span class="bcp14">MUST NOT</span> be used. Clients <span class="bcp14">MAY</span> follow redirects only to URIs whose host is
+within the same Organizational Domain (<span>[<a href="#RFC9989" class="cite xref">RFC9989</a>]</span>) as the original request.
+A policy is served as "application/json", <span class="bcp14">MUST NOT</span> exceed 65536 octets, and
+may be cached according to HTTP caching <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>; the "expires" member,
+if present, limits how long a cached copy is used.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="discovery">
+<section id="section-3.4">
+        <h3 id="name-discovery">
+<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-discovery" class="section-name selfRef">Discovery</a>
+        </h3>
+<p id="section-3.4-1">An Agent Contact Policy is discovered in one or more of the following ways.<a href="#section-3.4-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-3.4-2">
+          <dt id="section-3.4-2.1">Well-known URI:</dt>
+          <dd style="margin-left: 1.5em" id="section-3.4-2.2">
+            <p id="section-3.4-2.2.1">At "/.well-known/agent-contact-policy" <span>[<a href="#RFC8615" class="cite xref">RFC8615</a>]</span> under the domain of an
 email address the Organization controls, or under the Organization's website
-origin.<a href="#section-3.2-2.2.1" class="pilcrow">¶</a></p>
+origin.<a href="#section-3.4-2.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-3.2-2.3">Link relation:</dt>
-          <dd style="margin-left: 1.5em" id="section-3.2-2.4">
-            <p id="section-3.2-2.4.1">From an HTML page or HTTP response of the Organization's website, via a link
+<dt id="section-3.4-2.3">Link relation:</dt>
+          <dd style="margin-left: 1.5em" id="section-3.4-2.4">
+            <p id="section-3.4-2.4.1">From an HTML page or HTTP response of the Organization's website, via a link
 with the relation type "agent-contact-policy" <span>[<a href="#RFC8288" class="cite xref">RFC8288</a>]</span>. The page on which
-an Agent found a contact address is the natural place for this link.<a href="#section-3.2-2.4.1" class="pilcrow">¶</a></p>
+an Agent found a contact address is the natural place for this link.<a href="#section-3.4-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-3.2-2.5">DNS:</dt>
-          <dd style="margin-left: 1.5em" id="section-3.2-2.6">
-            <p id="section-3.2-2.6.1">For Organizations with their own domain, the policy URI <span class="bcp14">MAY</span> be carried in
+<dt id="section-3.4-2.5">DNS:</dt>
+          <dd style="margin-left: 1.5em" id="section-3.4-2.6">
+            <p id="section-3.4-2.6.1">For Organizations with their own domain, the policy URI <span class="bcp14">MAY</span> be carried in
 the "policy" parameter of a DNS-AID record <span>[<a href="#I-D.mozleywilliams-dnsop-dnsaid" class="cite xref">I-D.mozleywilliams-dnsop-dnsaid</a>]</span>
 or alongside an AID record <span>[<a href="#I-D.nemethi-dawn-aid" class="cite xref">I-D.nemethi-dawn-aid</a>]</span>. This document does not
-define a new DNS record type.<a href="#section-3.2-2.6.1" class="pilcrow">¶</a></p>
+define a new DNS record type.<a href="#section-3.4-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-3.2-2.7">Structured data:</dt>
-          <dd style="margin-left: 1.5em" id="section-3.2-2.8">
-            <p id="section-3.2-2.8.1">Organizations <span class="bcp14">MAY</span> additionally describe both kinds of contact point with
+<dt id="section-3.4-2.7">Structured data:</dt>
+          <dd style="margin-left: 1.5em" id="section-3.4-2.8">
+            <p id="section-3.4-2.8.1">Organizations <span class="bcp14">MAY</span> additionally describe both kinds of contact point with
 schema.org ContactPoint <span>[<a href="#SCHEMA-CONTACTPOINT" class="cite xref">SCHEMA-CONTACTPOINT</a>]</span> markup next to the
-addresses themselves.<a href="#section-3.2-2.8.1" class="pilcrow">¶</a></p>
+addresses themselves.<a href="#section-3.4-2.8.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-3.2-3">A policy is authoritative for a contact address only if it was retrieved from
-the domain of that address, or from the website on which the Agent found that
-address, or from a location linked from the Organization's authenticated
-reply in <a href="#reroute" class="auto internal xref">Section 5</a>.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authority">
+<section id="section-3.5">
+        <h3 id="name-authority">
+<a href="#section-3.5" class="section-number selfRef">3.5. </a><a href="#name-authority" class="section-name selfRef">Authority</a>
+        </h3>
+<p id="section-3.5-1">A policy is authoritative for a contact address only if:<a href="#section-3.5-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.5-2.1">
+            <p id="section-3.5-2.1.1">it was retrieved from the domain of that address; or<a href="#section-3.5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.5-2.2">
+            <p id="section-3.5-2.2.1">it was retrieved from, or linked from, a website that the Organization
+controls and that lists that address as the Organization's own. Directory
+sites, business listing platforms and search result pages are not such
+websites, even when they display the address; or<a href="#section-3.5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.5-2.3">
+            <p id="section-3.5-2.3.1">it was linked from an authenticated reply sent from that address, as
+described in <a href="#reroute" class="auto internal xref">Section 5</a>, with the limits stated in the trust model.<a href="#section-3.5-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
 </section>
 </div>
 <div id="agent-processing">
-<section id="section-3.3">
+<section id="section-3.6">
         <h3 id="name-agent-processing">
-<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-agent-processing" class="section-name selfRef">Agent Processing</a>
+<a href="#section-3.6" class="section-number selfRef">3.6. </a><a href="#name-agent-processing" class="section-name selfRef">Agent Processing</a>
         </h3>
-<p id="section-3.3-1">Before sending to a contact address, an Agent Platform <span class="bcp14">SHOULD</span> look up an
-Agent Contact Policy for it. If the address is listed in "human_contacts",
-the Agent Platform:<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.6-1">Before sending to a contact address, an Agent Platform <span class="bcp14">SHOULD</span> look up an
+Agent Contact Policy for it. If the address is listed in "human_contacts" of
+an authoritative policy, the Agent Platform:<a href="#section-3.6-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-3.3-2.1">
-            <p id="section-3.3-2.1.1"><span class="bcp14">SHOULD</span> offer its Principal the corresponding Agent Contact Point instead,
-stating that the Organization publishes it for agents;<a href="#section-3.3-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-3.6-2.1">
+            <p id="section-3.6-2.1.1"><span class="bcp14">SHOULD</span> offer its Principal the corresponding Agent Contact Point instead,
+stating that the Organization publishes it for agents. This applies even
+when the Principal named the Human Contact Point, since Principals usually
+name the only address they know;<a href="#section-3.6-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-3.3-2.2">
-            <p id="section-3.3-2.2.1"><span class="bcp14">MAY</span> use the Agent Contact Point without asking if the Principal has granted
-a standing permission to use Organizations' published Agent Contact Points;<a href="#section-3.3-2.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-3.6-2.2">
+            <p id="section-3.6-2.2.1"><span class="bcp14">MAY</span> use the Agent Contact Point without asking if the Principal has granted
+a standing permission to use Organizations' published Agent Contact Points;<a href="#section-3.6-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-3.3-2.3">
-            <p id="section-3.3-2.3.1"><span class="bcp14">MUST NOT</span> treat the policy as a reason to withhold the Principal's request
-if the Principal insists on the Human Contact Point.<a href="#section-3.3-2.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-3.6-2.3">
+            <p id="section-3.6-2.3.1"><span class="bcp14">MUST NOT</span> treat the policy as a reason to withhold the Principal's request
+if the Principal insists on the Human Contact Point.<a href="#section-3.6-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -1762,54 +1894,129 @@ if the Principal insists on the Human Contact Point.<a href="#section-3.3-2.3.1"
 </div>
 <div id="identify">
 <section id="section-4">
-      <h2 id="name-identifying-agent-sent-emai">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-identifying-agent-sent-emai" class="section-name selfRef">Identifying Agent-Sent Email</a>
+      <h2 id="name-identifying-agent-composed-">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-identifying-agent-composed-" class="section-name selfRef">Identifying Agent-Composed Email</a>
       </h2>
-<div id="the-agent-parameter">
+<div id="the-agent-submitted-keyword">
 <section id="section-4.1">
-        <h3 id="name-the-agent-parameter">
-<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-the-agent-parameter" class="section-name selfRef">The "agent" Parameter</a>
+        <h3 id="name-the-agent-submitted-keyword">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-the-agent-submitted-keyword" class="section-name selfRef">The agent-submitted Keyword</a>
         </h3>
-<p id="section-4.1-1">An Agent Platform sending email on behalf of a Principal <span class="bcp14">SHOULD</span> include:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-1">Email composed by an Agent on behalf of a Principal <span class="bcp14">SHOULD</span> carry:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.1-2">
 <pre>
-Auto-Submitted: auto-generated; agent=agents.example.net
+Auto-Submitted: agent-submitted; agent=agents.example.net
 </pre><a href="#section-4.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-4.1-3">The "auto-generated" keyword is as defined in <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>. This document
-defines the "agent" parameter, whose value is a domain name identifying the
-Agent Platform. The grammar follows the opt-parameter-list of <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>,
-Section 5.1.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
-<p id="section-4.1-4">The message <span class="bcp14">SHOULD</span> carry a valid DKIM <span>[<a href="#RFC6376" class="cite xref">RFC6376</a>]</span> signature whose "d=" domain
-is the "agent" domain or a parent domain of it. A receiver <span class="bcp14">MUST NOT</span> treat the
-"agent" parameter as verified unless such a signature validates.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
-<p id="section-4.1-5">When an Agent sends from its Principal's mailbox, the Agent Platform <span class="bcp14">SHOULD</span>
-add a Sender field <span>[<a href="#RFC5322" class="cite xref">RFC5322</a>]</span> identifying a mailbox the Agent Platform
-controls, preserving the Principal in From. When an Agent sends from its own
-mailbox and answers should reach the Principal, it <span class="bcp14">SHOULD</span> set Reply-To to the
-Principal's address.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">The "agent-submitted" keyword means that the message was composed by an
+Agent acting for a person, and that it is a request that expects an answer.
+The "agent" parameter is <span class="bcp14">REQUIRED</span> with this keyword; its value is a domain
+name identifying the Agent Platform. A second parameter, "by", is described
+in <a href="#by-provider" class="auto internal xref">Section 4.4</a>. The syntax follows <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>, Section 5.1:<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<div class="lang-abnf sourcecode" id="section-4.1-4">
+<pre>
+agent-param = "agent" "=" domain-name
+by-param    = "by" "=" domain-name
+domain-name = 1*( ALPHA / DIGIT / "-" / "." )
+</pre><a href="#section-4.1-4" class="pilcrow">¶</a>
+</div>
+<p id="section-4.1-5">A new keyword is used, rather than a parameter on "auto-generated", because
+"auto-generated" already denotes notifications and similar mail that expects
+no answer, and existing software treats it that way. An agent's request is
+the opposite: it expects an answer, but not from an autoresponder. Software
+that predates this document treats any keyword other than "no" as automatic
+(<span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>, Section 5), so a vacation responder still stays silent. Some
+Agent Platforms label agent mail "auto-generated" today; receivers cannot
+distinguish it from notifications, which is the ambiguity this keyword
+removes.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="verifying-the-label">
+<section id="section-4.2">
+        <h3 id="name-verifying-the-label">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-verifying-the-label" class="section-name selfRef">Verifying the Label</a>
+        </h3>
+<p id="section-4.2-1">A receiver <span class="bcp14">MUST NOT</span> treat an agent-submitted label as verified unless a DKIM
+<span>[<a href="#RFC6376" class="cite xref">RFC6376</a>]</span> signature on the message validates, lists the Auto-Submitted
+field in its signed header fields ("h=" tag), and has a "d=" domain that is
+aligned with the domain responsible for the label: the "by" domain if "by" is
+present, otherwise the "agent" domain. A "d=" domain is aligned with a domain
+if the two are equal or share an Organizational Domain as defined in
+<span>[<a href="#RFC9989" class="cite xref">RFC9989</a>]</span>; a public suffix is never aligned with anything.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">An unverified label is a claim, not an identification. A receiver <span class="bcp14">MAY</span> still
+use it to choose how to reply (for example, by stating the Agent Contact
+Point in the reply) but <span class="bcp14">MUST NOT</span> use it to withhold the message from staff.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="agents-sending-from-their-own-mailboxes">
+<section id="section-4.3">
+        <h3 id="name-agents-sending-from-their-o">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-agents-sending-from-their-o" class="section-name selfRef">Agents Sending from Their Own Mailboxes</a>
+        </h3>
+<p id="section-4.3-1">Some Agent Platforms give each Agent its own mailbox at the Agent Platform's
+domain. Such an Agent Platform labels and signs the message itself, with
+"agent" set to its own domain, and <span class="bcp14">SHOULD</span> set Reply-To to the Principal's
+address when answers should reach the Principal.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="by-provider">
+<section id="section-4.4">
+        <h3 id="name-agents-sending-from-their-p">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-agents-sending-from-their-p" class="section-name selfRef">Agents Sending from Their Principal's Mailbox</a>
+        </h3>
+<p id="section-4.4-1">More commonly today, an Agent sends through the Principal's own mailbox,
+using an API the Mailbox Provider offers to applications the Principal has
+authorized. The Mailbox Provider signs such mail with its own domain, so a
+label added by the Agent Platform cannot be verified against the Agent
+Platform's domain.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.4-2">In this case the label can only be verified if the Mailbox Provider asserts
+it. A Mailbox Provider that accepts a message from an authorized application
+that it knows to be an Agent Platform <span class="bcp14">SHOULD</span>:<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.4-3.1">
+            <p id="section-4.4-3.1.1">add or replace the Auto-Submitted field with "agent-submitted", an "agent"
+parameter naming the application's registered domain, and a "by"
+parameter naming the Mailbox Provider's own signing domain;<a href="#section-4.4-3.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.4-3.2">
+            <p id="section-4.4-3.2.1">sign the field with its DKIM signature;<a href="#section-4.4-3.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.4-3.3">
+            <p id="section-4.4-3.3.1">remove any Auto-Submitted field that names its own domain in "by" when the
+message did not come through such an application, so that a Principal or
+third party cannot forge its assertion.<a href="#section-4.4-3.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.4-4">The Agent Platform <span class="bcp14">SHOULD</span> also add a Sender field <span>[<a href="#RFC5322" class="cite xref">RFC5322</a>]</span> naming a
+mailbox it controls, preserving the Principal in From. Mail signed by
+several parties, as proposed in <span>[<a href="#I-D.ietf-dkim-dkim2-spec" class="cite xref">I-D.ietf-dkim-dkim2-spec</a>]</span>, could let the
+Agent Platform add its own verifiable signature to such mail; this document
+does not depend on it.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
+<p id="section-4.4-5">Until Mailbox Providers do this, mail an Agent sends from its Principal's
+mailbox carries no verifiable label, and Organizations rely on the Agent
+Contact Policy and Agent-Reroute instead.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="receiver-handling">
-<section id="section-4.2">
+<section id="section-4.5">
         <h3 id="name-receiver-handling">
-<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-receiver-handling" class="section-name selfRef">Receiver Handling</a>
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-receiver-handling" class="section-name selfRef">Receiver Handling</a>
         </h3>
-<p id="section-4.2-1">A message labelled with a verified "agent" parameter is a request that
-expects an answer. A receiver <span class="bcp14">MAY</span> route it to an Agent Contact Point and
-answer it there, notwithstanding the general guidance in <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>,
-Section 2, that automatic responses should not be sent to messages with an
-Auto-Submitted value other than "no". To avoid loops, such answers:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.5-1">A message with a verified agent-submitted label is a request that expects an
+answer. A receiver <span class="bcp14">MAY</span> route it to an Agent Contact Point and answer it
+there, notwithstanding the general guidance in <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>, Section 2, that
+automatic responses should not be sent to messages with an Auto-Submitted
+value other than "no". To avoid loops, such answers:<a href="#section-4.5-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2-2.1">
-            <p id="section-4.2-2.1.1"><span class="bcp14">MUST</span> carry "Auto-Submitted: auto-replied";<a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.5-2.1">
+            <p id="section-4.5-2.1.1"><span class="bcp14">MUST</span> carry "Auto-Submitted: auto-replied";<a href="#section-4.5-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.2-2.2">
-            <p id="section-4.2-2.2.1"><span class="bcp14">MUST</span> be sent at most once per request, and <span class="bcp14">SHOULD</span> be limited per sender
-and thread;<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-4.5-2.2">
+            <p id="section-4.5-2.2.1"><span class="bcp14">MUST</span> be sent at most once per request, and <span class="bcp14">SHOULD</span> be limited per sender
+and thread;<a href="#section-4.5-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.2-2.3">
-            <p id="section-4.2-2.3.1"><span class="bcp14">MUST NOT</span> be sent to a message that itself carries "auto-replied".<a href="#section-4.2-2.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-4.5-2.3">
+            <p id="section-4.5-2.3.1"><span class="bcp14">MUST NOT</span> be sent to a message that itself carries "auto-replied".<a href="#section-4.5-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -1833,7 +2040,8 @@ agent-reroute = "Agent-Reroute:" [CFWS] "&lt;" URI "&gt;"
 </pre><a href="#section-5.1-1" class="pilcrow">¶</a>
 </div>
 <p id="section-5.1-2">"URI" is as defined in <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span> and <span class="bcp14">MUST</span> be a "mailto:" or "https:" URI.
-"parameter" is as in <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>, Section 5.1. Defined parameters:<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+"CFWS" is as defined in <span>[<a href="#RFC5322" class="cite xref">RFC5322</a>]</span>, and "parameter" is as in <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>,
+Section 5.1. Defined parameters:<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-5.1-3">
           <dt id="section-5.1-3.1">ref:</dt>
           <dd style="margin-left: 1.5em" id="section-5.1-3.2">
@@ -1847,12 +2055,20 @@ the request to staff and a Reroute is no longer useful.<a href="#section-5.1-3.4
 </dd>
         <dd class="break"></dd>
 </dl>
-<p id="section-5.1-4">Example:<a href="#section-5.1-4" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-5.1-5">
+<p id="section-5.1-4">References have the following syntax, are compared case-insensitively, and
+<span class="bcp14">MUST</span> contain at least 64 bits of randomness generated as described in
+<span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span>:<a href="#section-5.1-4" class="pilcrow">¶</a></p>
+<div class="lang-abnf sourcecode" id="section-5.1-5">
 <pre>
-Agent-Reroute: &lt;mailto:chippewa-creek@line.example&gt;; ref="HL-8V2C";
-  expires="2026-09-24T18:04:18Z"
+reference = 1*64( ALPHA / DIGIT / "-" )
 </pre><a href="#section-5.1-5" class="pilcrow">¶</a>
+</div>
+<p id="section-5.1-6">Example:<a href="#section-5.1-6" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5.1-7">
+<pre>
+Agent-Reroute: &lt;mailto:chippewa-creek@line.example&gt;;
+  ref="HL-8V2CQ7M3KX9TD"; expires="2026-09-24T18:04:18Z"
+</pre><a href="#section-5.1-7" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -1872,7 +2088,7 @@ identifying the original message);<a href="#section-5.2-2.1.1" class="pilcrow">�
             <p id="section-5.2-2.2.1"><span class="bcp14">MUST</span> be sent from the address to which the original message was sent;<a href="#section-5.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.2-2.3">
-            <p id="section-5.2-2.3.1"><span class="bcp14">MUST</span> pass DMARC <span>[<a href="#RFC7489" class="cite xref">RFC7489</a>]</span> for its From domain;<a href="#section-5.2-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-5.2-2.3.1"><span class="bcp14">MUST</span> pass DMARC <span>[<a href="#RFC9989" class="cite xref">RFC9989</a>]</span> for its From domain;<a href="#section-5.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.2-2.4">
             <p id="section-5.2-2.4.1"><span class="bcp14">MUST</span> carry "Auto-Submitted: auto-replied";<a href="#section-5.2-2.4.1" class="pilcrow">¶</a></p>
@@ -1891,10 +2107,11 @@ Policy that is authoritative for the original recipient address.<a href="#sectio
 state the Agent Contact Point in the visible text of the reply, addressed to
 the Principal rather than to the Agent (see <a href="#visible-text" class="auto internal xref">Section 5.5</a>).<a href="#section-5.2-4" class="pilcrow">¶</a></p>
 <p id="section-5.2-5">An Organization <span class="bcp14">MAY</span> delay delivery of the original message to its staff for a
-short interval so that a Reroute can arrive first, and <span class="bcp14">SHOULD</span> deliver it
-without further delay if no Reroute arrives before "expires". A request that
-is rerouted <span class="bcp14">SHOULD NOT</span> also be delivered to staff through the Human Contact
-Point.<a href="#section-5.2-5" class="pilcrow">¶</a></p>
+short interval so that a Reroute can arrive first, and <span class="bcp14">MUST</span> deliver it
+without further delay if no Reroute arrives before "expires". When a Reroute
+arrives, the Organization <span class="bcp14">SHOULD NOT</span> present the original to staff as a
+separate unhandled request, but <span class="bcp14">MUST</span> keep it available to them, marked as
+rerouted; a rerouted request is never discarded (<a href="#suppression" class="auto internal xref">Section 8.3</a>).<a href="#section-5.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="agent-platform-behavior">
@@ -1918,27 +2135,32 @@ to, and DMARC passed for its domain;<a href="#section-5.3-2.2.1" class="pilcrow"
 Policy authoritative for that address.<a href="#section-5.3-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-5.3-3">The Agent Platform <span class="bcp14">MUST NOT</span> follow a Reroute without its Principal's
+<p id="section-5.3-3">When the only authoritative policy is one linked from the reply itself, the
+Agent Platform <span class="bcp14">SHOULD</span> tell its Principal that the destination was named by
+the mailbox the Agent wrote to and could not be confirmed independently.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
+<p id="section-5.3-4">The Agent Platform <span class="bcp14">MUST NOT</span> follow a Reroute without its Principal's
 approval, unless the Principal has granted a standing permission to follow
-verified Reroutes. When following a Reroute, the Agent Platform:<a href="#section-5.3-3" class="pilcrow">¶</a></p>
+verified Reroutes. When following a Reroute, the Agent Platform:<a href="#section-5.3-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.3-4.1">
-            <p id="section-5.3-4.1.1"><span class="bcp14">MUST</span> resend the same request, unchanged in substance, at most once;<a href="#section-5.3-4.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.3-5.1">
+            <p id="section-5.3-5.1.1"><span class="bcp14">MUST</span> resend the same request, unchanged in substance, at most once;<a href="#section-5.3-5.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.3-4.2">
-            <p id="section-5.3-4.2.1"><span class="bcp14">MUST</span> include the Reference (in the subject when resending by email);<a href="#section-5.3-4.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.3-5.2">
+            <p id="section-5.3-5.2.1"><span class="bcp14">MUST</span> include the Reference; when resending by email, the subject <span class="bcp14">MUST</span>
+contain the Reference as a separate token, delimited by the start or end
+of the subject, white space, or square brackets;<a href="#section-5.3-5.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.3-4.3">
-            <p id="section-5.3-4.3.1"><span class="bcp14">MUST NOT</span> follow a further Agent-Reroute received in response to the
-rerouted request;<a href="#section-5.3-4.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.3-5.3">
+            <p id="section-5.3-5.3.1"><span class="bcp14">MUST NOT</span> follow a further Agent-Reroute received in response to the
+rerouted request;<a href="#section-5.3-5.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.3-4.4">
-            <p id="section-5.3-4.4.1"><span class="bcp14">MUST</span> inform its Principal that the request was rerouted and where.<a href="#section-5.3-4.4.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.3-5.4">
+            <p id="section-5.3-5.4.1"><span class="bcp14">MUST</span> inform its Principal that the request was rerouted and where.<a href="#section-5.3-5.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.3-5">An Agent Platform <span class="bcp14">MUST NOT</span> treat text in a message body as equivalent to
+<p id="section-5.3-6">An Agent Platform <span class="bcp14">MUST NOT</span> treat text in a message body as equivalent to
 Agent-Reroute. Visible text may inform the Principal; it never authorizes an
-action.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
+action.<a href="#section-5.3-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="correlation-at-the-agent-contact-point">
@@ -1947,9 +2169,12 @@ action.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
 <a href="#section-5.4" class="section-number selfRef">5.4. </a><a href="#name-correlation-at-the-agent-co" class="section-name selfRef">Correlation at the Agent Contact Point</a>
         </h3>
 <p id="section-5.4-1">An Agent Contact Point correlates a rerouted request with the original
-request by the Reference. If no Reference is present and the rerouted
-request is email from the same address as a pending original, it <span class="bcp14">MAY</span>
-correlate it with that sender's most recent pending request.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
+request by the Reference, found in the subject or, for other protocols, in a
+field the protocol provides. A Reference correlates; it grants no access to
+the original request.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
+<p id="section-5.4-2">If no Reference is present, the Agent Contact Point <span class="bcp14">MAY</span> correlate a rerouted
+email with the most recent pending request from the same sender address, but
+only if the rerouted email passes DMARC <span>[<a href="#RFC9989" class="cite xref">RFC9989</a>]</span> for that address.<a href="#section-5.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="visible-text">
@@ -1957,26 +2182,25 @@ correlate it with that sender's most recent pending request.<a href="#section-5.
         <h3 id="name-visible-text">
 <a href="#section-5.5" class="section-number selfRef">5.5. </a><a href="#name-visible-text" class="section-name selfRef">Visible Text</a>
         </h3>
-<p id="section-5.5-1">This section is informative. Until Agent Platforms process Agent-Reroute, the
-visible reply is the only signal Agents act on. In the experiment in
-<a href="#experiment" class="auto internal xref">Appendix A</a>, a short notice addressed to the Principal and stating the
-benefit, such as the following, led every Agent tested to offer the Reroute to
-its Principal:<a href="#section-5.5-1" class="pilcrow">¶</a></p>
+<p id="section-5.5-1">Until Agent Platforms process Agent-Reroute, the visible reply is the only
+signal Agents act on. In the experiment in <a href="#experiment" class="auto internal xref">Appendix A</a>, a short notice
+addressed to the Principal and stating the benefit, such as the following,
+led every Agent tested to offer the Reroute to its Principal:<a href="#section-5.5-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-5.5-2">
 <pre>
 Thanks for contacting Chippewa Creek Test Garage. We got your message
 and a person will get back to you soon.
 
 If an AI agent sent this for you, have it resend your message to
-chippewa-creek@line.example with HL-8V2C in the subject. The agent line
-replies right away from our published information and passes anything it
-can't answer to staff.
+chippewa-creek@line.example with HL-8V2CQ7M3KX9TD in the subject. The
+agent line replies right away from our published information and passes
+anything it can't answer to staff.
 </pre><a href="#section-5.5-2" class="pilcrow">¶</a>
 </div>
 <p id="section-5.5-3">Wording addressed to "AI assistants" rather than to the Principal was treated
-by one Agent as an unverified instruction and declined. Notices <span class="bcp14">SHOULD NOT</span>
-claim that the sender was detected as an Agent: the same reply is sent to
-every first-time sender.<a href="#section-5.5-3" class="pilcrow">¶</a></p>
+by one Agent as an unverified instruction and declined. Because the same
+reply is sent to every first-time sender, a notice <span class="bcp14">MUST NOT</span> claim that the
+sender was detected as an Agent.<a href="#section-5.5-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1989,7 +2213,7 @@ every first-time sender.<a href="#section-5.5-3" class="pilcrow">¶</a></p>
 <p id="section-6-1">An Organization may operate an agent telephone number and list it in
 "agent_contacts" with the protocol "voice", and may list its staffed numbers
 in "human_contacts". An Agent that found both on the Organization's website
-can then choose the agent number before dialing, under <a href="#agent-processing" class="auto internal xref">Section 3.3</a>.<a href="#section-6-1" class="pilcrow">¶</a></p>
+can then choose the agent number before dialing, under <a href="#agent-processing" class="auto internal xref">Section 3.6</a>.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <p id="section-6-2">What is missing is the reverse lookup: telephone numbers have no widely
 deployed mapping from a number to a policy location the Organization
 controls, so an Agent holding only a phone number cannot find the policy. A
@@ -1998,162 +2222,298 @@ platforms, from which Agents commonly obtain phone numbers, are the likely
 registry; defining a listing field is out of scope.<a href="#section-6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="security-considerations">
+<div id="implementation-status">
 <section id="section-7">
-      <h2 id="name-security-considerations">
-<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      <h2 id="name-implementation-status">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-implementation-status" class="section-name selfRef">Implementation Status</a>
       </h2>
-<span class="break"></span><dl class="dlParallel" id="section-7-1">
-        <dt id="section-7-1.1">Prompt injection:</dt>
-        <dd style="margin-left: 1.5em" id="section-7-1.2">
-          <p id="section-7-1.2.1">Nothing in this document permits an Agent to act on instructions in
-message content. Agent-Reroute is processed by the Agent Platform's
-software under the conditions in <a href="#reroute" class="auto internal xref">Section 5</a>, and even a verified Reroute
-requires the Principal's approval or standing permission.<a href="#section-7-1.2.1" class="pilcrow">¶</a></p>
+<p id="section-7-1">This section records the status of known implementations at the time of
+writing, following <span>[<a href="#RFC7942" class="cite xref">RFC7942</a>]</span>, and is to be removed before publication as an
+RFC.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-7-2">
+        <dt id="section-7-2.1">Agentline (working name):</dt>
+        <dd style="margin-left: 1.5em" id="section-7-2.2">
+          <p id="section-7-2.2.1">An Organization-side implementation by the author, used with a Gmail
+mailbox as the Human Contact Point. It sends a visible notice with a
+Reference to first-time senders, holds the contact, correlates Reroutes by
+Reference and then by sender, marks rerouted originals instead of
+discarding them, and answers mail labelled as automatic at its Agent
+Contact Point. It carries the reroute pointer in draft header fields
+(X-Agent-Line and X-Agent-Line-Reference) that predate Agent-Reroute. Its
+References currently have about 20 bits of randomness, less than
+<a href="#reroute" class="auto internal xref">Section 5</a> requires. It does not yet publish an Agent Contact Policy.<a href="#section-7-2.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-7-1.3">Spoofed replies:</dt>
-        <dd style="margin-left: 1.5em" id="section-7-1.4">
-          <p id="section-7-1.4.1">A forged reply could name an attacker's address. The DMARC, same-thread and
-same-address conditions, and the requirement that the destination appear in
-an authoritative Agent Contact Policy, prevent this unless the attacker
-controls the Organization's mailbox or its published policy, in which case
-the attacker can already redirect correspondents by ordinary means.<a href="#section-7-1.4.1" class="pilcrow">¶</a></p>
+<dt id="section-7-2.3">Test garage:</dt>
+        <dd style="margin-left: 1.5em" id="section-7-2.4">
+          <p id="section-7-2.4.1">A public test business at https://davekiss.com/test-garage with a Human
+Contact Point and an Agent Contact Point, used for the experiment in
+<a href="#experiment" class="auto internal xref">Appendix A</a>. It serves llms.txt, an A2A Agent Card and an MCP endpoint.<a href="#section-7-2.4.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
-<dt id="section-7-1.5">Loops:</dt>
-        <dd style="margin-left: 1.5em" id="section-7-1.6">
-          <p id="section-7-1.6.1">A Reroute is followed at most once, and a rerouted request's replies are
-never followed. Answers to agent-labelled mail are marked "auto-replied"
-and limited per thread.<a href="#section-7-1.6.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-<dt id="section-7-1.7">References:</dt>
-        <dd style="margin-left: 1.5em" id="section-7-1.8">
-          <p id="section-7-1.8.1">A Reference is a correlation token, not a credential. It <span class="bcp14">MUST NOT</span> be
-used to authorize access to the original message.<a href="#section-7-1.8.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-<dt id="section-7-1.9">Abuse of Agent Contact Points:</dt>
-        <dd style="margin-left: 1.5em" id="section-7-1.10">
-          <p id="section-7-1.10.1">Agent Contact Points are public and answer automatically. They need rate
-limits and abuse handling from the outset; in the experiment, an unrelated
-client probed a newly published agent endpoint for command-execution tools
-within about an hour.<a href="#section-7-1.10.1" class="pilcrow">¶</a></p>
-</dd>
-        <dd class="break"></dd>
-<dt id="section-7-1.11">Unverified labels:</dt>
-        <dd style="margin-left: 1.5em" id="section-7-1.12">
-          <p id="section-7-1.12.1">An "agent" parameter without an aligned DKIM signature is a claim, not an
-identification, and <span class="bcp14">MUST NOT</span> be treated as verified.<a href="#section-7-1.12.1" class="pilcrow">¶</a></p>
+<dt id="section-7-2.5">Agent Platforms:</dt>
+        <dd style="margin-left: 1.5em" id="section-7-2.6">
+          <p id="section-7-2.6.1">No Agent Platform is known to implement the agent-submitted keyword or
+Agent-Reroute. One (Instinct) labels its mail "Auto-Submitted:
+auto-generated", signs it from its own domain with a DMARC policy of
+"reject", and adds a proprietary signed credential header.<a href="#section-7-2.6.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
 </section>
 </div>
-<div id="privacy-considerations">
+<div id="security-considerations">
 <section id="section-8">
-      <h2 id="name-privacy-considerations">
-<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      <h2 id="name-security-considerations">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-8-1">A Reroute sends a request's content to an Agent Contact Point that may be
+<div id="prompt-injection">
+<section id="section-8.1">
+        <h3 id="name-prompt-injection">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-prompt-injection" class="section-name selfRef">Prompt Injection</a>
+        </h3>
+<p id="section-8.1-1">Nothing in this document permits an Agent to act on instructions in
+message content. Agent-Reroute is processed by the Agent Platform's
+software under the conditions in <a href="#reroute" class="auto internal xref">Section 5</a>, and even a verified Reroute
+requires the Principal's approval or standing permission.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="spoofed-replies">
+<section id="section-8.2">
+        <h3 id="name-spoofed-replies">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-spoofed-replies" class="section-name selfRef">Spoofed Replies</a>
+        </h3>
+<p id="section-8.2-1">A forged reply could name an attacker's address. The DMARC, same-thread and
+same-address conditions, and the requirement that the destination appear in
+an authoritative Agent Contact Policy, prevent this unless the attacker
+controls the Organization's mailbox or its published policy, in which case
+the attacker can already redirect correspondents by ordinary means. For
+addresses at shared Mailbox Providers without a website, verification
+rests on the reply's authentication alone (see the trust model).<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="suppression">
+<section id="section-8.3">
+        <h3 id="name-suppression-of-genuine-requ">
+<a href="#section-8.3" class="section-number selfRef">8.3. </a><a href="#name-suppression-of-genuine-requ" class="section-name selfRef">Suppression of Genuine Requests</a>
+        </h3>
+<p id="section-8.3-1">An attacker who can make an Agent Contact Point believe that a pending
+request was rerouted could cause staff to overlook a genuine customer's
+message. This is why References must be unguessable, why correlation by
+sender alone requires DMARC to pass, and why a rerouted original is marked
+rather than discarded. Agent Contact Points <span class="bcp14">SHOULD</span> also rate-limit failed
+Reference lookups.<a href="#section-8.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="forged-labels">
+<section id="section-8.4">
+        <h3 id="name-forged-labels">
+<a href="#section-8.4" class="section-number selfRef">8.4. </a><a href="#name-forged-labels" class="section-name selfRef">Forged Labels</a>
+        </h3>
+<p id="section-8.4-1">A sender can add "agent-submitted" to any message. Only a label verified
+as described in <a href="#identify" class="auto internal xref">Section 4</a> may change how a message is routed, and even a
+verified label never causes a message to be withheld from staff. A Mailbox
+Provider that asserts labels must stop users and applications from forging
+its assertion, as described in <a href="#by-provider" class="auto internal xref">Section 4.4</a>.<a href="#section-8.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="loops">
+<section id="section-8.5">
+        <h3 id="name-loops">
+<a href="#section-8.5" class="section-number selfRef">8.5. </a><a href="#name-loops" class="section-name selfRef">Loops</a>
+        </h3>
+<p id="section-8.5-1">A Reroute is followed at most once, and a rerouted request's replies are
+never followed. Answers to agent-submitted mail are marked "auto-replied"
+and limited per thread.<a href="#section-8.5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="abuse-of-agent-contact-points">
+<section id="section-8.6">
+        <h3 id="name-abuse-of-agent-contact-poin">
+<a href="#section-8.6" class="section-number selfRef">8.6. </a><a href="#name-abuse-of-agent-contact-poin" class="section-name selfRef">Abuse of Agent Contact Points</a>
+        </h3>
+<p id="section-8.6-1">Agent Contact Points are public and answer automatically. They need rate
+limits and abuse handling from the outset; in the experiment, an unrelated
+client probed a newly published agent endpoint for command-execution tools
+within about an hour.<a href="#section-8.6-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="privacy-considerations">
+<section id="section-9">
+      <h2 id="name-privacy-considerations">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      </h2>
+<p id="section-9-1">A Reroute sends a request's content to an Agent Contact Point that may be
 operated by a service provider. The Organization chooses that provider, as it
 chooses a mail provider, and <span class="bcp14">SHOULD</span> disclose it. Agents <span class="bcp14">MUST</span> inform their
-Principal when a request is rerouted. The "agent" parameter identifies an
-Agent Platform, not the Principal.<a href="#section-8-1" class="pilcrow">¶</a></p>
+Principal when a request is rerouted. The "agent" and "by" parameters
+identify an Agent Platform and a Mailbox Provider, not the Principal, though
+they reveal to the Organization which Agent Platform the Principal uses.<a href="#section-9-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-9">
+<section id="section-10">
       <h2 id="name-iana-considerations">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
 <div id="message-header-field">
-<section id="section-9.1">
+<section id="section-10.1">
         <h3 id="name-message-header-field">
-<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-message-header-field" class="section-name selfRef">Message Header Field</a>
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-message-header-field" class="section-name selfRef">Message Header Field</a>
         </h3>
-<p id="section-9.1-1">This document requests registration in the "Permanent Message Header Field
-Names" registry <span>[<a href="#RFC3864" class="cite xref">RFC3864</a>]</span>:<a href="#section-9.1-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-9.1-2.1">
-            <p id="section-9.1-2.1.1">Header field name: Agent-Reroute<a href="#section-9.1-2.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-9.1-2.2">
-            <p id="section-9.1-2.2.1">Applicable protocol: mail<a href="#section-9.1-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-9.1-2.3">
-            <p id="section-9.1-2.3.1">Status: experimental<a href="#section-9.1-2.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-9.1-2.4">
-            <p id="section-9.1-2.4.1">Author/change controller: IETF<a href="#section-9.1-2.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-9.1-2.5">
-            <p id="section-9.1-2.5.1">Specification document: this document<a href="#section-9.1-2.5.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
+<p id="section-10.1-1">This document requests registration of the following in the "Permanent
+Message Header Field Names" registry <span>[<a href="#RFC3864" class="cite xref">RFC3864</a>]</span>:<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-10.1-2">
+          <dt id="section-10.1-2.1">Header field name:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.2">
+            <p id="section-10.1-2.2.1">Agent-Reroute<a href="#section-10.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.1-2.3">Applicable protocol:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.4">
+            <p id="section-10.1-2.4.1">mail<a href="#section-10.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.1-2.5">Status:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.6">
+            <p id="section-10.1-2.6.1">experimental<a href="#section-10.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.1-2.7">Author/Change controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.8">
+            <p id="section-10.1-2.8.1">IETF<a href="#section-10.1-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.1-2.9">Specification document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.10">
+            <p id="section-10.1-2.10.1">this document (<a href="#reroute" class="auto internal xref">Section 5</a>)<a href="#section-10.1-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.1-2.11">Related information:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.12">
+            <p id="section-10.1-2.12.1">none<a href="#section-10.1-2.12.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="auto-submitted-keyword">
+<section id="section-10.2">
+        <h3 id="name-auto-submitted-keyword">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-auto-submitted-keyword" class="section-name selfRef">Auto-Submitted Keyword</a>
+        </h3>
+<p id="section-10.2-1">This document requests registration of the following in the "Auto-Submitted
+Header Field Keywords" registry established by <span>[<a href="#RFC5436" class="cite xref">RFC5436</a>]</span>:<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-10.2-2">
+          <dt id="section-10.2-2.1">Keyword value:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.2">
+            <p id="section-10.2-2.2.1">agent-submitted<a href="#section-10.2-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.2-2.3">Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.4">
+            <p id="section-10.2-2.4.1">Indicates that a message was composed by a software agent acting on
+behalf of a person, and that it is a request that expects an answer.<a href="#section-10.2-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.2-2.5">Parameters:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.6">
+            <p id="section-10.2-2.6.1">agent (required): the domain of the Agent Platform. by (optional): the
+domain of the Mailbox Provider asserting the label. See this document.<a href="#section-10.2-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.2-2.7">Reference:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.8">
+            <p id="section-10.2-2.8.1">this document<a href="#section-10.2-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.2-2.9">Contact:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.10">
+            <p id="section-10.2-2.10.1">Dave Kiss (dave@davekiss.com)<a href="#section-10.2-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-10.2-3">This document also requests registration of the parameters "agent" and "by",
+with reference to this document, in the "Auto-Submitted header field optional
+parameters" registry established by <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>.<a href="#section-10.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="well-known-uri">
-<section id="section-9.2">
+<section id="section-10.3">
         <h3 id="name-well-known-uri">
-<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-well-known-uri" class="section-name selfRef">Well-Known URI</a>
+<a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-well-known-uri" class="section-name selfRef">Well-Known URI</a>
         </h3>
-<p id="section-9.2-1">This document requests registration of the well-known URI suffix
-"agent-contact-policy" <span>[<a href="#RFC8615" class="cite xref">RFC8615</a>]</span>, change controller IETF, referring to
-<a href="#policy" class="auto internal xref">Section 3</a>.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+<p id="section-10.3-1">This document requests registration of the following in the "Well-Known
+URIs" registry <span>[<a href="#RFC8615" class="cite xref">RFC8615</a>]</span>:<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-10.3-2">
+          <dt id="section-10.3-2.1">URI suffix:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.3-2.2">
+            <p id="section-10.3-2.2.1">agent-contact-policy<a href="#section-10.3-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.3-2.3">Change controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.3-2.4">
+            <p id="section-10.3-2.4.1">IETF<a href="#section-10.3-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.3-2.5">Specification document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-10.3-2.6">
+            <p id="section-10.3-2.6.1">this document (<a href="#policy" class="auto internal xref">Section 3</a>)<a href="#section-10.3-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.3-2.7">Status:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.3-2.8">
+            <p id="section-10.3-2.8.1">provisional<a href="#section-10.3-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.3-2.9">Related information:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.3-2.10">
+            <p id="section-10.3-2.10.1">none<a href="#section-10.3-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
 </section>
 </div>
 <div id="link-relation">
-<section id="section-9.3">
+<section id="section-10.4">
         <h3 id="name-link-relation">
-<a href="#section-9.3" class="section-number selfRef">9.3. </a><a href="#name-link-relation" class="section-name selfRef">Link Relation</a>
+<a href="#section-10.4" class="section-number selfRef">10.4. </a><a href="#name-link-relation" class="section-name selfRef">Link Relation</a>
         </h3>
-<p id="section-9.3-1">This document requests registration of the link relation type
-"agent-contact-policy" <span>[<a href="#RFC8288" class="cite xref">RFC8288</a>]</span>: "Refers to an Agent Contact Policy for
-the contact points on or near the linking resource."<a href="#section-9.3-1" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="auto-submitted-parameter">
-<section id="section-9.4">
-        <h3 id="name-auto-submitted-parameter">
-<a href="#section-9.4" class="section-number selfRef">9.4. </a><a href="#name-auto-submitted-parameter" class="section-name selfRef">Auto-Submitted Parameter</a>
-        </h3>
-<p id="section-9.4-1">This document requests registration of the following in the "Auto-Submitted
-header field optional parameters" registry established by <span>[<a href="#RFC3834" class="cite xref">RFC3834</a>]</span>, whose
-registration procedure is IETF Review:<a href="#section-9.4-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-9.4-2.1">
-            <p id="section-9.4-2.1.1">Parameter name: agent<a href="#section-9.4-2.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-9.4-2.2">
-            <p id="section-9.4-2.2.1">Applicable keywords: auto-generated, auto-replied<a href="#section-9.4-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-9.4-2.3">
-            <p id="section-9.4-2.3.1">Description: The domain name of the Agent Platform that composed the
-message on behalf of a person; verified only by an aligned DKIM signature
-(<a href="#identify" class="auto internal xref">Section 4</a>).<a href="#section-9.4-2.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-9.4-2.4">
-            <p id="section-9.4-2.4.1">Reference: this document<a href="#section-9.4-2.4.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<p id="section-9.4-3">This document also requests that the "Parameters" column of the
-"auto-generated" and "auto-replied" entries in the "Auto-Submitted Header
-Field Keywords" registry <span>[<a href="#RFC5436" class="cite xref">RFC5436</a>]</span> refer to this parameter.<a href="#section-9.4-3" class="pilcrow">¶</a></p>
+<p id="section-10.4-1">This document requests registration of the following in the "Link Relation
+Types" registry <span>[<a href="#RFC8288" class="cite xref">RFC8288</a>]</span>:<a href="#section-10.4-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-10.4-2">
+          <dt id="section-10.4-2.1">Relation Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.4-2.2">
+            <p id="section-10.4-2.2.1">agent-contact-policy<a href="#section-10.4-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.4-2.3">Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.4-2.4">
+            <p id="section-10.4-2.4.1">Refers to an Agent Contact Policy for the contact points on or near the
+linking resource.<a href="#section-10.4-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.4-2.5">Reference:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.4-2.6">
+            <p id="section-10.4-2.6.1">this document (<a href="#policy" class="auto internal xref">Section 3</a>)<a href="#section-10.4-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
 </section>
 </div>
 </section>
 </div>
 <div id="sec-combined-references">
-<section id="section-10">
+<section id="section-11">
       <h2 id="name-references">
-<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-references" class="section-name selfRef">References</a>
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
 <div id="sec-normative-references">
-<section id="section-10.1">
+<section id="section-11.1">
         <h3 id="name-normative-references">
-<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
 <dt id="RFC2119">[RFC2119]</dt>
@@ -2176,6 +2536,10 @@ Field Keywords" registry <span>[<a href="#RFC5436" class="cite xref">RFC5436</a>
         <dd>
 <span class="refAuthor">Berners-Lee, T.</span>, <span class="refAuthor">Fielding, R.</span>, and <span class="refAuthor">L. Masinter</span>, <span class="refTitle">"Uniform Resource Identifier (URI): Generic Syntax"</span>, <span class="seriesInfo">STD 66</span>, <span class="seriesInfo">RFC 3986</span>, <span class="seriesInfo">DOI 10.17487/RFC3986</span>, <time datetime="2005-01" class="refDate">January 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3986">https://www.rfc-editor.org/rfc/rfc3986</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC5234">[RFC5234]</dt>
+        <dd>
+<span class="refAuthor">Crocker, D., Ed.</span> and <span class="refAuthor">P. Overell</span>, <span class="refTitle">"Augmented BNF for Syntax Specifications: ABNF"</span>, <span class="seriesInfo">STD 68</span>, <span class="seriesInfo">RFC 5234</span>, <span class="seriesInfo">DOI 10.17487/RFC5234</span>, <time datetime="2008-01" class="refDate">January 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5234">https://www.rfc-editor.org/rfc/rfc5234</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC5322">[RFC5322]</dt>
         <dd>
 <span class="refAuthor">Resnick, P., Ed.</span>, <span class="refTitle">"Internet Message Format"</span>, <span class="seriesInfo">RFC 5322</span>, <span class="seriesInfo">DOI 10.17487/RFC5322</span>, <time datetime="2008-10" class="refDate">October 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5322">https://www.rfc-editor.org/rfc/rfc5322</a>&gt;</span>. </dd>
@@ -2187,10 +2551,6 @@ Field Keywords" registry <span>[<a href="#RFC5436" class="cite xref">RFC5436</a>
 <dt id="RFC6376">[RFC6376]</dt>
         <dd>
 <span class="refAuthor">Crocker, D., Ed.</span>, <span class="refAuthor">Hansen, T., Ed.</span>, and <span class="refAuthor">M. Kucherawy, Ed.</span>, <span class="refTitle">"DomainKeys Identified Mail (DKIM) Signatures"</span>, <span class="seriesInfo">STD 76</span>, <span class="seriesInfo">RFC 6376</span>, <span class="seriesInfo">DOI 10.17487/RFC6376</span>, <time datetime="2011-09" class="refDate">September 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6376">https://www.rfc-editor.org/rfc/rfc6376</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC7489">[RFC7489]</dt>
-        <dd>
-<span class="refAuthor">Kucherawy, M., Ed.</span> and <span class="refAuthor">E. Zwicky, Ed.</span>, <span class="refTitle">"Domain-based Message Authentication, Reporting, and Conformance (DMARC)"</span>, <span class="seriesInfo">RFC 7489</span>, <span class="seriesInfo">DOI 10.17487/RFC7489</span>, <time datetime="2015-03" class="refDate">March 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7489">https://www.rfc-editor.org/rfc/rfc7489</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
         <dd>
@@ -2205,21 +2565,37 @@ Field Keywords" registry <span>[<a href="#RFC5436" class="cite xref">RFC5436</a>
 <span class="refAuthor">Nottingham, M.</span>, <span class="refTitle">"Web Linking"</span>, <span class="seriesInfo">RFC 8288</span>, <span class="seriesInfo">DOI 10.17487/RFC8288</span>, <time datetime="2017-10" class="refDate">October 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8288">https://www.rfc-editor.org/rfc/rfc8288</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8615">[RFC8615]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Nottingham, M.</span>, <span class="refTitle">"Well-Known Uniform Resource Identifiers (URIs)"</span>, <span class="seriesInfo">RFC 8615</span>, <span class="seriesInfo">DOI 10.17487/RFC8615</span>, <time datetime="2019-05" class="refDate">May 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8615">https://www.rfc-editor.org/rfc/rfc8615</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9110">[RFC9110]</dt>
+        <dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="seriesInfo">STD 97</span>, <span class="seriesInfo">RFC 9110</span>, <span class="seriesInfo">DOI 10.17487/RFC9110</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9111">[RFC9111]</dt>
+        <dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Caching"</span>, <span class="seriesInfo">STD 98</span>, <span class="seriesInfo">RFC 9111</span>, <span class="seriesInfo">DOI 10.17487/RFC9111</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9111">https://www.rfc-editor.org/rfc/rfc9111</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9989">[RFC9989]</dt>
+      <dd>
+<span class="refAuthor">Herr, T., Ed.</span> and <span class="refAuthor">J. Levine, Ed.</span>, <span class="refTitle">"Domain-Based Message Authentication, Reporting, and Conformance (DMARC)"</span>, <span class="seriesInfo">RFC 9989</span>, <span class="seriesInfo">DOI 10.17487/RFC9989</span>, <time datetime="2026-05" class="refDate">May 2026</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9989">https://www.rfc-editor.org/rfc/rfc9989</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
 </div>
 <div id="sec-informative-references">
-<section id="section-10.2">
+<section id="section-11.2">
         <h3 id="name-informative-references">
-<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
 <dt id="A2A">[A2A]</dt>
         <dd>
 <span class="refTitle">"Agent2Agent (A2A) Protocol: Agent Discovery"</span>, <span>n.d.</span>, <span>&lt;<a href="https://a2a-protocol.org/latest/topics/agent-discovery/">https://a2a-protocol.org/latest/topics/agent-discovery/</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ietf-dkim-dkim2-spec">[I-D.ietf-dkim-dkim2-spec]</dt>
+        <dd>
+<span class="refAuthor">Clayton, R.</span>, <span class="refAuthor">Chuang, W.</span>, and <span class="refAuthor">B. Gondwana</span>, <span class="refTitle">"DomainKeys Identified Mail Signatures v2 (DKIM2)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dkim-dkim2-spec-06</span>, <time datetime="2026-08-28" class="refDate">28 August 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-dkim-dkim2-spec-06">https://datatracker.ietf.org/doc/html/draft-ietf-dkim-dkim2-spec-06</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-webbotauth-httpsig-protocol">[I-D.ietf-webbotauth-httpsig-protocol]</dt>
         <dd>
@@ -2241,6 +2617,10 @@ Field Keywords" registry <span>[<a href="#RFC5436" class="cite xref">RFC5436</a>
         <dd>
 <span class="refAuthor">Rosenberg, J.</span>, <span class="refAuthor">Schulzrinne, H.</span>, <span class="refAuthor">Camarillo, G.</span>, <span class="refAuthor">Johnston, A.</span>, <span class="refAuthor">Peterson, J.</span>, <span class="refAuthor">Sparks, R.</span>, <span class="refAuthor">Handley, M.</span>, and <span class="refAuthor">E. Schooler</span>, <span class="refTitle">"SIP: Session Initiation Protocol"</span>, <span class="seriesInfo">RFC 3261</span>, <span class="seriesInfo">DOI 10.17487/RFC3261</span>, <time datetime="2002-07" class="refDate">July 2002</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3261">https://www.rfc-editor.org/rfc/rfc3261</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC4086">[RFC4086]</dt>
+        <dd>
+<span class="refAuthor">Eastlake 3rd, D.</span>, <span class="refAuthor">Schiller, J.</span>, and <span class="refAuthor">S. Crocker</span>, <span class="refTitle">"Randomness Requirements for Security"</span>, <span class="seriesInfo">BCP 106</span>, <span class="seriesInfo">RFC 4086</span>, <span class="seriesInfo">DOI 10.17487/RFC4086</span>, <time datetime="2005-06" class="refDate">June 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4086">https://www.rfc-editor.org/rfc/rfc4086</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC5321">[RFC5321]</dt>
         <dd>
 <span class="refAuthor">Klensin, J.</span>, <span class="refTitle">"Simple Mail Transfer Protocol"</span>, <span class="seriesInfo">RFC 5321</span>, <span class="seriesInfo">DOI 10.17487/RFC5321</span>, <time datetime="2008-10" class="refDate">October 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5321">https://www.rfc-editor.org/rfc/rfc5321</a>&gt;</span>. </dd>
@@ -2248,6 +2628,10 @@ Field Keywords" registry <span>[<a href="#RFC5436" class="cite xref">RFC5436</a>
 <dt id="RFC5436">[RFC5436]</dt>
         <dd>
 <span class="refAuthor">Leiba, B.</span> and <span class="refAuthor">M. Haardt</span>, <span class="refTitle">"Sieve Notification Mechanism: mailto"</span>, <span class="seriesInfo">RFC 5436</span>, <span class="seriesInfo">DOI 10.17487/RFC5436</span>, <time datetime="2009-01" class="refDate">January 2009</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5436">https://www.rfc-editor.org/rfc/rfc5436</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7942">[RFC7942]</dt>
+        <dd>
+<span class="refAuthor">Sheffer, Y.</span> and <span class="refAuthor">A. Farrel</span>, <span class="refTitle">"Improving Awareness of Running Code: The Implementation Status Section"</span>, <span class="seriesInfo">BCP 205</span>, <span class="seriesInfo">RFC 7942</span>, <span class="seriesInfo">DOI 10.17487/RFC7942</span>, <time datetime="2016-07" class="refDate">July 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7942">https://www.rfc-editor.org/rfc/rfc7942</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9057">[RFC9057]</dt>
         <dd>
@@ -2277,7 +2661,7 @@ Human Contact Point and an Agent Contact Point on another domain. On
 2026-09-24, three consumer agents (Grok Bot, Instinct and Meta Muse) were
 each asked to email the business about a service. Each first-time email
 received the same one-sentence acknowledgement, with the Agent Contact Point
-placed differently in each run:<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+placed differently in each run. Each cell is one run.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 <table class="center" id="table-1">
         <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
 <thead>
@@ -2304,7 +2688,7 @@ placed differently in each run:<a href="#appendix-A-1" class="pilcrow">¶</a></p
           <tr>
             <td class="text-left" rowspan="1" colspan="1">Visible line addressed to "AI assistants"</td>
             <td class="text-left" rowspan="1" colspan="1">offered to Principal</td>
-            <td class="text-left" rowspan="1" colspan="1">declined</td>
+            <td class="text-left" rowspan="1" colspan="1">declined, then offered</td>
             <td class="text-left" rowspan="1" colspan="1">relayed</td>
           </tr>
           <tr>
@@ -2333,7 +2717,9 @@ domain from the business.<a href="#appendix-A-4.2.1" class="pilcrow">¶</a></p>
           <p id="appendix-A-4.3.1">Two agents sent from the Principal's own mailbox with no indication of
 automation. One agent (Instinct) sent from its own domain with
 "Auto-Submitted: auto-generated", a proprietary signed credential header
-and a DMARC policy of "reject"; its mail could be routed with certainty.<a href="#appendix-A-4.3.1" class="pilcrow">¶</a></p>
+and a DMARC policy of "reject"; its mail could be routed with certainty.
+One of the other two Agent Platforms has since announced mailboxes of the
+Agents' own, which would allow the verifiable labelling in <a href="#identify" class="auto internal xref">Section 4</a>.<a href="#appendix-A-4.3.1" class="pilcrow">¶</a></p>
 </li>
         <li id="appendix-A-4.4">
           <p id="appendix-A-4.4.1">When a notice named a new per-request address, one agent held a second
@@ -2373,9 +2759,9 @@ parameter.<a href="#appendix-B-1.2.1" class="pilcrow">¶</a></p>
 <dt id="appendix-B-1.5">Web Bot Auth:</dt>
         <dd style="margin-left: 1.5em" id="appendix-B-1.6">
           <p id="appendix-B-1.6.1">Authenticates automated HTTP clients <span>[<a href="#I-D.ietf-webbotauth-httpsig-protocol" class="cite xref">I-D.ietf-webbotauth-httpsig-protocol</a>]</span>
-using HTTP Message Signatures <span>[<a href="#RFC9421" class="cite xref">RFC9421</a>]</span>. It does not cover email, and its
-identity model (the platform signs) is mirrored here by the DKIM-aligned
-"agent" parameter.<a href="#appendix-B-1.6.1" class="pilcrow">¶</a></p>
+using HTTP Message Signatures <span>[<a href="#RFC9421" class="cite xref">RFC9421</a>]</span>. It does not cover email. Its
+identity model, in which the platform signs, is mirrored here by the
+DKIM-verified "agent" parameter.<a href="#appendix-B-1.6.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="appendix-B-1.7">SMTP 551 and SIP redirection:</dt>
